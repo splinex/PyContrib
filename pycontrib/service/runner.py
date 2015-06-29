@@ -6,7 +6,7 @@ Created on Jun 18, 2015
 
 import asyncio
 import os, time
-from misc.informer import Informer
+from pycontrib.misc.informer import Informer
 
 class Runner(object):
     def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=2):

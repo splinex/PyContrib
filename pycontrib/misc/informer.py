@@ -59,17 +59,17 @@ class Mailer(object):
             Mailer._prevMsg = msg
             Mailer.disconnect() 
 
-class Informer(logging):
+class Informer(logging.Logger):
     
     @classmethod
     def initEnv(cls, env):
         logging.basicConfig(filename='{0}/{1}.log'.format(env.home, env.name),
-                            level=(logging.DEBUG if env.info else logging.CRITICAL),
+                            level=(logging.DEBUG if env.debug else logging.CRITICAL),
                             format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port))
 
-        Mailer.initCredentials(Mailer(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
-                                      env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port']))
+        Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
+                                      env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port'])
     
     @classmethod
     def error(cls, msg):
-        logging.error(msg)
+        logging.Logger.error(msg)

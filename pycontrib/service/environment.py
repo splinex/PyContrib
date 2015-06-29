@@ -5,7 +5,7 @@ Created on Jun 18, 2015
 '''
 
 import argparse, configparser, logging
-from misc.informer import Informer
+from pycontrib.misc.informer import Informer
 
 class Environment(object):
     
