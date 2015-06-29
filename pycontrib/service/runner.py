@@ -100,7 +100,7 @@ class HlsRunner(SimpleRunner):
         
         i = m3u8Data.find('#EXT-X-ENDLIST')
         if i != -1:
-            Informer('Trancating #EXT-X-ENDLIST')
+            Informer.info('Trancating #EXT-X-ENDLIST')
             m3u8Data = m3u8Data[:i]
             w = open(self.outputFn, 'wt')
             w.write(m3u8Data)
