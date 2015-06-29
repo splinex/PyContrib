@@ -5,7 +5,7 @@ Created on Jun 18, 2015
 '''
 
 import asyncio
-import os, time
+import os, time, re
 from pycontrib.misc.informer import Informer
 
 class Runner(object):
@@ -27,9 +27,10 @@ class Runner(object):
     
     @asyncio.coroutine
     def start(self):                 
-        cmd = self.genCmd()                
-        cmds = cmd.split()
+
         while 1: 
+            cmd = self.genCmd()                
+            cmds = cmd.split()
             if self.runned():
                 self.stop()
                 yield from asyncio.sleep(self.restart_timeout)
@@ -38,7 +39,7 @@ class Runner(object):
             while self.runned():
                 yield from asyncio.sleep(self.check_timeout)
                 if self.needRestart():
-                    Informer.info('Going to restart command')
+                    Informer.error('Need to restart')
                     break      
     
     def stop(self):
@@ -56,7 +57,6 @@ class SimpleRunner(Runner):
         else:
             stdout = asyncio.subprocess.PIPE
         Runner.__init__(self, stdout)
-        self.stdout = stdout
         self.cmd, self.outputFn, self.timeout = cmd, outputFn, timeout
         self.targetMDate = 0
         
@@ -75,6 +75,36 @@ class SimpleRunner(Runner):
         restart = (time.time() - self.targetMDate > self.timeout)
         if restart:
             self.targetMDate = 0
-            Informer.error('Need to restart ({0})'.format(self.cmd))
+            
         return restart
+    
+class HlsRunner(SimpleRunner):
+    
+    def __init__(self, *args):
+        SimpleRunner.__init__(self, *args)
+        self.mediaSequence = 0
+        self.needRestart()
+    
+    def needRestart(self):
+        need = SimpleRunner.needRestart(self)
+        if not os.path.exists(self.outputFn):
+            return need
+        
+        r = open(self.outputFn, 'rt')
+        m3u8Data = r.read()
+        r.close()
+        
+        indexes = re.findall('#EXT-X-MEDIA-SEQUENCE:(\d+)',m3u8Data)
+        if len(indexes):
+            self.mediaSequence = int(indexes[0])
+        
+        i = m3u8Data.find('#EXT-X-ENDLIST')
+        if i != -1:
+            Informer('Trancating #EXT-X-ENDLIST')
+            m3u8Data = m3u8Data[:i]
+            w = open(self.outputFn, 'wt')
+            w.write(m3u8Data)
+            w.close()
+            
+        return need
     
