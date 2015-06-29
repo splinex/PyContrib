@@ -59,7 +59,7 @@ class Mailer(object):
             Mailer._prevMsg = msg
             Mailer.disconnect() 
 
-class Informer(logging.Logger):
+class Informer(object):
     
     @classmethod
     def initEnv(cls, env):
@@ -72,4 +72,9 @@ class Informer(logging.Logger):
     
     @classmethod
     def error(cls, msg):
-        logging.Logger.error(msg)
+        logging.error(msg)
+        Mailer.send(msg)
+        
+    @classmethod
+    def info(cls, msg):
+        logging.info(msg)
