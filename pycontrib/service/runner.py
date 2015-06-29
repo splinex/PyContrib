@@ -49,7 +49,11 @@ class Runner(object):
         self.start()
         
 class SimpleRunner(Runner):
-    def __init__(self, cmd, stdout=asyncio.subprocess.PIPE, outputFn=None, timeout=40):        
+    def __init__(self, cmd, logFn=None, outputFn=None, timeout=40):
+        if logFn:
+            stdout = open(logFn, 'a')
+        else:
+            stdout = asyncio.subprocess.PIPE
         Runner.__init__(self, stdout)
         self.stdout = stdout
         self.cmd, self.outputFn, self.timeout = cmd, outputFn, timeout
@@ -63,10 +67,10 @@ class SimpleRunner(Runner):
     def needRestart(self):
         if not self.outputFn:
             return False
-        if os.path.exists(self.outputFn):
-            self.targetMDate = os.path.getmtime(self.outputFn)
-        elif self.targetMDate == 0:
+        if self.targetMDate == 0:
             self.targetMDate = time.time()
+        elif os.path.exists(self.outputFn):
+            self.targetMDate = max(self.targetMDate, os.path.getmtime(self.outputFn))
         restart = (time.time() - self.targetMDate > self.timeout)
         if restart:
             self.targetMDate = 0
