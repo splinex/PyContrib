@@ -5,6 +5,7 @@ Created on Jun 18, 2015
 '''
 
 import argparse, configparser, logging
+from misc.informer import Informer
 
 class Environment(object):
     
@@ -35,8 +36,6 @@ class Environment(object):
         except Exception as e:
             raise BaseException('Config file is not valid: {0}'.format(e))
         
-        logging.basicConfig(filename='{0}/{1}.log'.format(self.home, self.name), 
-                            level=(logging.DEBUG if self.debug else logging.info), 
-                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(self.name, self.port))
+        Informer.initEnv(self)
         
-        logging.info('{0} started at {1}'.format(self.name, self.port))
+        Informer.info('{0} started at {1}'.format(self.name, self.port))

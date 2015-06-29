@@ -5,7 +5,8 @@ Created on Jun 18, 2015
 '''
 
 import asyncio
-import logging, os, time
+import os, time
+from misc.informer import Informer
 
 class Runner(object):
     def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=2):
@@ -32,12 +33,12 @@ class Runner(object):
             if self.runned():
                 self.stop()
                 yield from asyncio.sleep(self.restart_timeout)
-            logging.info('Run: {0}'.format(cmd))
+            Informer.info('Run: {0}'.format(cmd))
             self.proc = yield from asyncio.create_subprocess_exec(*cmds, stdout=self.stdout, stderr=asyncio.subprocess.STDOUT)
             while self.runned():
                 yield from asyncio.sleep(self.check_timeout)
                 if self.needRestart():
-                    logging.info('Going to restart command')
+                    Informer.info('Going to restart command')
                     break      
     
     def stop(self):
@@ -74,5 +75,6 @@ class SimpleRunner(Runner):
         restart = (time.time() - self.targetMDate > self.timeout)
         if restart:
             self.targetMDate = 0
+            Informer.error('Need to restart ({0})'.format(self.cmd))
         return restart
     
