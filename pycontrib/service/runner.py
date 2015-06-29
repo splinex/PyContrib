@@ -8,8 +8,9 @@ import asyncio
 import logging, os, time
 
 class Runner(object):
-    def __init__(self, restart_timeout=5, check_timeout=1):
+    def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=2):
         self.proc = None
+        self.stdout = stdout
         self.restart_timeout, self.check_timeout = restart_timeout, check_timeout
         
     def runned(self):
@@ -31,8 +32,8 @@ class Runner(object):
             if self.runned():
                 self.stop()
                 yield from asyncio.sleep(self.restart_timeout)
-            logging.info(cmd)        
-            self.proc = yield from asyncio.create_subprocess_exec(*cmds, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+            logging.info('Run: {0}'.format(cmd))
+            self.proc = yield from asyncio.create_subprocess_exec(*cmds, stdout=self.stdout, stderr=asyncio.subprocess.STDOUT)
             while self.runned():
                 yield from asyncio.sleep(self.check_timeout)
                 if self.needRestart():
@@ -48,8 +49,9 @@ class Runner(object):
         self.start()
         
 class SimpleRunner(Runner):
-    def __init__(self, cmd, outputFn=None, timeout=40):
-        Runner.__init__(self)
+    def __init__(self, cmd, stdout=asyncio.subprocess.PIPE, outputFn=None, timeout=40):        
+        Runner.__init__(self, stdout)
+        self.stdout = stdout
         self.cmd, self.outputFn, self.timeout = cmd, outputFn, timeout
         self.targetMDate = 0
         
