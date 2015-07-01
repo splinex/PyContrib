@@ -5,7 +5,7 @@ Created on Jun 18, 2015
 '''
 
 import asyncio
-import os, time, re, psutil
+import os, time, re, psutil, json
 from pycontrib.misc.informer import Informer
 
 class Runner(object):
@@ -68,6 +68,7 @@ class SimpleRunner(Runner):
     def needRestart(self):
         if psutil.virtual_memory().percent > 90:
             Informer.info('Going to restart due to RAM usage')
+            Informer.error('Restart due to low mem:\n\n' + json.dumps(list(map(lambda p: (p.name(), p.memory_percent()), psutil.process_iter())), indent=2))
             return True
         
         if not self.outputFn:
