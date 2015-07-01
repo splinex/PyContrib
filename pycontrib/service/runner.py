@@ -9,7 +9,7 @@ import os, time, re, psutil
 from pycontrib.misc.informer import Informer
 
 class Runner(object):
-    def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=2):
+    def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=1):
         self.proc = None
         self.stdout = stdout
         self.restart_timeout, self.check_timeout = restart_timeout, check_timeout
@@ -67,6 +67,7 @@ class SimpleRunner(Runner):
     
     def needRestart(self):
         if psutil.virtual_memory().percent > 90:
+            Informer.info('Going to restart due to RAM usage')
             return True
         
         if not self.outputFn:
