@@ -5,7 +5,7 @@ Created on Jun 18, 2015
 '''
 
 import asyncio
-import os, time, re
+import os, time, re, psutil
 from pycontrib.misc.informer import Informer
 
 class Runner(object):
@@ -66,6 +66,9 @@ class SimpleRunner(Runner):
         return self.cmd
     
     def needRestart(self):
+        if psutil.virtual_memory().percent > 90:
+            return True
+        
         if not self.outputFn:
             return False
         if self.targetMDate == 0:
