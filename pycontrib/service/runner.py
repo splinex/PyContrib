@@ -7,12 +7,15 @@ Created on Jun 18, 2015
 import asyncio
 import os, time, re, psutil, json
 from pycontrib.misc.informer import Informer
+from pycontrib.service.monitor import HttpMonitor
 
 class Runner(object):
     def __init__(self, stdout=asyncio.subprocess.PIPE, restart_timeout=5, check_timeout=1):
         self.proc = None
+        self.runTime = None
         self.stdout = stdout
         self.restart_timeout, self.check_timeout = restart_timeout, check_timeout
+        HttpMonitor.addCallback(self.getState)
         
     def runned(self):
         if self.proc == None:
@@ -25,6 +28,9 @@ class Runner(object):
     def needRestart(self):
         raise NotImplementedError('To be implemented')
     
+    def getState(self):
+        return dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time()-self.runTime) if self.runTime else None))
+    
     @asyncio.coroutine
     def start(self):                 
 
@@ -36,6 +42,7 @@ class Runner(object):
                 yield from asyncio.sleep(self.restart_timeout)
             Informer.info('Run: {0}'.format(cmd))
             self.proc = yield from asyncio.create_subprocess_exec(*cmds, stdout=self.stdout, stderr=asyncio.subprocess.STDOUT)
+            self.runTime = time.time()
             while self.runned():
                 yield from asyncio.sleep(self.check_timeout)
                 if self.needRestart():
@@ -93,23 +100,28 @@ class HlsRunner(SimpleRunner):
     def needRestart(self):
         need = SimpleRunner.needRestart(self)
         if not os.path.exists(self.outputFn):
+            self.m3u8Data = None
             return need
         
         r = open(self.outputFn, 'rt')
-        m3u8Data = r.read()
+        self.m3u8Data = r.read()
         r.close()
         
-        indexes = re.findall('#EXT-X-MEDIA-SEQUENCE:(\d+)',m3u8Data)
+        indexes = re.findall('#EXT-X-MEDIA-SEQUENCE:(\d+)', self.m3u8Data)
         if len(indexes):
             self.mediaSequence = int(indexes[0])
         
-        i = m3u8Data.find('#EXT-X-ENDLIST')
+        i = self.m3u8Data.find('#EXT-X-ENDLIST')
         if i != -1:
             Informer.info('Trancating #EXT-X-ENDLIST')
-            m3u8Data = m3u8Data[:i]
+            self.m3u8Data =self.m3u8Data[:i]
             w = open(self.outputFn, 'wt')
-            w.write(m3u8Data)
+            w.write(self.m3u8Data)
             w.close()
             
         return need
     
+    def getState(self):
+        state = SimpleRunner.getState(self)
+        state['m3u8'] = self.m3u8Data
+        return state

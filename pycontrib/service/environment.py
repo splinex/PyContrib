@@ -29,6 +29,7 @@ class Environment(object):
             self.config['GENERAL']['debug'] = 'True'
         
         try:
+            self.host = self.config['NETWORK']['host']
             self.port = int(self.config['NETWORK']['port'])
             self.name = self.config['GENERAL']['name']
             self.debug = (self.config['GENERAL']['debug'] == 'True')
