@@ -6,7 +6,7 @@ source ~/.bashrc
 
 while true
 do
-	screen -X -S $2 quit
-	screen -d -m -S proxy python3 $1 --config $2
-	inotifywait -e modify $2
+	screen -X -S $1 quit
+	screen -d -m -S proxy python3 $2 --config $3
+	inotifywait -e modify $3
 done
