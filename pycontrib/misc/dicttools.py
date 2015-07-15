@@ -38,4 +38,6 @@ def DictListLeveling(l):
         ans.append(ansD)
     return ans
 
+def FirterDictKeys(d, keys):
+    return dict(filter(lambda i: i[0] in keys, d.items()))
         
