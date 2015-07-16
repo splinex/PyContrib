@@ -5,9 +5,12 @@ class LoginRequestHandler(tornado.web.RequestHandler):
     def get_current_user(self):
         user = self.get_secure_cookie("user")
         password = self.get_secure_cookie("password")
-        if (user, password) == (b'human', b'safari'):
-            return user
+        if (user, password) in [(b'human', b'safari'), (b'export', b'453264')]:
+            return user.decode()
         return None
+    
+    def current_user_is_superuser(self):
+        return (self.current_user=='human')
 
 class HttpLoginHandler(LoginRequestHandler):
     def get(self):
