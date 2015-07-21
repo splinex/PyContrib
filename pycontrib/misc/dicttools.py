@@ -4,23 +4,23 @@ Created on Jul 3, 2015
 @author: maxim
 '''
 
-def TreeDictToPlainDict(d):
+def TreeDictToPlainDict(d, root=True):
     noneKey = 'noneKey271813'
     plain = dict()
     if type(d) == dict:             
         for key, val in d.items():
-            for subKey, subVal in TreeDictToPlainDict(val).items():
+            for subKey, subVal in TreeDictToPlainDict(val, False).items():
                 if not subKey == noneKey: 
-                    plain['/{0}{1}'.format(key, subKey)]=subVal
+                    plain['{dot}{0}{1}'.format(key, subKey, dot='' if root else '.')]=subVal
                 else:
-                    plain['/{0}'.format(key)]=subVal
+                    plain['{dot}{0}'.format(key, dot='' if root else '.')]=subVal
     elif type(d) in (list, tuple):
         for i in range(len(d)):
-            for subKey, subVal in TreeDictToPlainDict(d[i]).items():
+            for subKey, subVal in TreeDictToPlainDict(d[i], False).items():
                 if not subKey == noneKey:
-                    plain['[{0}]{1}'.format(i, subKey)] = subVal
+                    plain['{dot}{0}{1}'.format(i, subKey, dot='' if root else '.')] = subVal
                 else:
-                    plain['[{0}]'.format(i)] = subVal
+                    plain['{dot}{0}'.format(i, dot='' if root else '.')] = subVal
     else:
         plain[noneKey] = d
     return plain

@@ -1,4 +1,5 @@
 
+import datetime, time
 import tornado.web
 
 class LoginRequestHandler(tornado.web.RequestHandler):
@@ -7,6 +8,7 @@ class LoginRequestHandler(tornado.web.RequestHandler):
         password = self.get_secure_cookie("password")
         if (user, password) in [(b'human', b'safari'), (b'export', b'453264')]:
             return user.decode()
+        time.sleep(3)
         return None
     
     def current_user_is_superuser(self):
