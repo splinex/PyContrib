@@ -37,6 +37,11 @@ class Environment(object):
         except Exception as e:
             raise BaseException('Config file is not valid: {0}'.format(e))
         
+        
+        if 'LOGIN' in self.config:
+            cl = self.config['LOGIN']
+            self.login = {'admins': {cl['adminlogin']: cl['adminpass']}, 'users': {cl['userlogin']: cl['userpass']}}
+        
         Informer.initEnv(self)
         
         Informer.info('{0} started at {1}'.format(self.name, self.port))

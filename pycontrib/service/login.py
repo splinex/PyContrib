@@ -1,18 +1,28 @@
 
-import datetime, time
+import time
 import tornado.web
 
 class LoginRequestHandler(tornado.web.RequestHandler):
+    
+    @classmethod
+    def set_users(cls, admins, users):
+        cls
+    
     def get_current_user(self):
-        user = self.get_secure_cookie("user")
-        password = self.get_secure_cookie("password")
-        if (user, password) in [(b'human', b'safari'), (b'export', b'453264')]:
-            return user.decode()
+        user = self.get_secure_cookie('user')
+        password = self.get_secure_cookie('password')
+        if user and password:
+            user = user.decode()
+            password = password.decode()
+        cls = type(self)
+        for group in ('admins', 'users'):
+            if (user in self.settings.get(group, {}) and self.settings[group][user] == password):            
+                return user
         time.sleep(3)
         return None
     
     def current_user_is_superuser(self):
-        return (self.current_user=='human')
+        return (self.current_user in self.settings.get('admins', {}))
 
 class HttpLoginHandler(LoginRequestHandler):
     def get(self):
