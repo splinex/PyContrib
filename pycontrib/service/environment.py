@@ -18,7 +18,8 @@ class Environment(object):
         if args.config:
             configFn = args.config
         else:
-            raise BaseException('Use --help for args')        
+            raise BaseException('Use --help for args')     
+           
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.config.read(configFn)
@@ -29,11 +30,12 @@ class Environment(object):
             self.config['GENERAL']['debug'] = 'True'
         
         try:
-            self.host = self.config['NETWORK']['host']
+            self.host = self.config['NETWORK'].get('host', '127.0.0.1')
             self.port = int(self.config['NETWORK']['port'])
             self.name = self.config['GENERAL']['name']
-            self.debug = (self.config['GENERAL']['debug'] == 'True')
-            self.home = self.config['GENERAL']['home']
+            self.debug = (self.config['GENERAL'].get('debug', 'False') == 'True')
+            self.home = self.config['GENERAL'].get('home', '')
+            self.log = self.config['GENERAL'].get('log', '{0}/{1}.log'.format(self.home, self.name))
         except Exception as e:
             raise BaseException('Config file is not valid: {0}'.format(e))
         
@@ -44,4 +46,5 @@ class Environment(object):
         
         Informer.initEnv(self)
         
-        Informer.info('{0} started at {1}'.format(self.name, self.port))
+        Informer.info('{0} started at {1}:{2}'.format(self.name, self.host, self.port))
+        

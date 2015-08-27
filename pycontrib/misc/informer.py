@@ -1,4 +1,4 @@
-import smtplib, logging, asyncio
+import smtplib, logging, asyncio, sys
 
 class Mailer(object):
     _smtpServer = None
@@ -45,7 +45,7 @@ class Mailer(object):
         if msg == Mailer._prevMsg:
             return
         if not Mailer._smtpHost:
-            logging.error('Mailer was not inited')
+            #logging.error('Mailer was not inited')
             return
         Mailer.connect()
         try:
@@ -63,12 +63,16 @@ class Informer(object):
     
     @classmethod
     def initEnv(cls, env):
-        logging.basicConfig(filename='{0}/{1}.log'.format(env.home, env.name),
-                            level=(logging.DEBUG if env.debug else logging.CRITICAL),
+        if env.log == '/dev/stdout':
+            logging.basicConfig(stream=sys.stdout, level=(logging.DEBUG if env.debug else logging.CRITICAL),
+                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port))
+        else:
+            logging.basicConfig(filename=env.log, level=(logging.DEBUG if env.debug else logging.CRITICAL),
                             format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port))
 
-        Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
-                                      env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port'])
+        if 'MAILING' in env.config and env.config['MAILING']['enabled'] == 'True':
+            Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
+                                          env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port'])
     
     @classmethod
     def error(cls, msg):
@@ -78,3 +82,5 @@ class Informer(object):
     @classmethod
     def info(cls, msg):
         logging.info(msg)
+        
+
