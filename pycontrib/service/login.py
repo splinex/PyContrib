@@ -26,7 +26,7 @@ class LoginRequestHandler(tornado.web.RequestHandler):
 
 class HttpLoginHandler(LoginRequestHandler):
     def get(self):
-        self.write('<html><body><form action="/login" method="post">'
+        self.write('<html><body><form action="./login" method="post">'
                    '<center><br><h1>Authentication is required</h1>'
                    '<b>Login:</b> <input type="login" name="login"><br><br>'
                    '<b>Password:</b> <input type="password" name="password"><br><br>'
