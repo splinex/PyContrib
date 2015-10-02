@@ -21,6 +21,6 @@ class HttpTemplateRequestHandler(LoginRequestHandler):
             try:
                 loader = tornado.template.Loader('{0}'.format(env.config['HTML']['templatedir']))
                 cls._indext = loader.load(cls.meta['template'])
-            except Exception:
-                print('can not load templates!')
+            except Exception as e:
+                print('can not load templates! {0}'.format(e))
                 cls._indext = None
