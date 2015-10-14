@@ -15,3 +15,4 @@ do
 	screen -d -m -S proxy python3 $2 --config $3
 	inotifywait -e modify $3
 done
+
