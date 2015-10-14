@@ -5,7 +5,12 @@ Created on Jun 18, 2015
 '''
 
 import asyncio
-import os, time, re, psutil, json
+import subprocess
+import os
+import time
+import re
+import psutil
+import json
 from pycontrib.misc.informer import Informer
 from pycontrib.service.monitor import HttpMonitor
 
@@ -64,7 +69,7 @@ class SimpleRunner(Runner):
         else:
             stdout = asyncio.subprocess.PIPE
         Runner.__init__(self, stdout)
-        self.cmd, self.outputFn, self.timeout = cmd, outputFn, timeout
+        self.cmd, self.outputFn, self.timeout, self.logFn = cmd, outputFn, timeout, logFn
         self.targetMDate = 0
         
     def genCmd(self):
@@ -123,5 +128,10 @@ class HlsRunner(SimpleRunner):
     
     def getState(self):
         state = SimpleRunner.getState(self)
-        state['m3u8'] = self.m3u8Data
+        state['misc'] = self.m3u8Data
+        if self.logFn:
+            try:
+                state['log'] = subprocess.check_output(['tail', '-30', self.logFn]).decode()
+            except Exception as e:
+                state['log'] = repr(e)
         return state
