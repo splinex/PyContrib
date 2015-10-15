@@ -136,7 +136,7 @@ class HlsRunner(SimpleRunner):
         state['misc'] = self.m3u8Data
         if self.logFn:
             try:
-                state['log'] = subprocess.check_output('sed s/\\r/\\n/g {0} | tail -20'.format(self.logFn), shell=True).decode()
+                state['log'] = subprocess.check_output('tail -10 {0} | sed s/\\\\r/\\\\n/g | tail -10'.format(self.logFn), shell=True).decode()
             except Exception as e:
                 state['log'] = repr(e)
         return state
