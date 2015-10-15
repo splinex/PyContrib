@@ -27,6 +27,7 @@ class HttpMonitor(tornado.web.RequestHandler):
                    cpu=psutil.cpu_percent(),
                    sent=psutil.net_io_counters().bytes_sent,
                    recv=psutil.net_io_counters().bytes_recv,
+                   disk_usage=list(map(lambda p: (p.mountpoint, psutil.disk_usage(p.mountpoint).percent), psutil.disk_partitions())),
                    states=[])
         
         for callback in HttpMonitor._callbacks:
