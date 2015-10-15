@@ -34,7 +34,12 @@ class Runner(object):
         raise NotImplementedError('To be implemented')
     
     def getState(self):
-        return dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time()-self.runTime) if self.runTime else None))
+        state = dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time()-self.runTime) if self.runTime else None), issues=[])
+        if not state['runned']:
+            state['issues'].append('Not runned')
+        elif state['runned'] < 120:
+            state['issues'].append('Short run time')
+        return state
     
     @asyncio.coroutine
     def start(self):                 

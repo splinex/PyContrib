@@ -28,7 +28,16 @@ class HttpMonitor(tornado.web.RequestHandler):
                    sent=psutil.net_io_counters().bytes_sent,
                    recv=psutil.net_io_counters().bytes_recv,
                    disk_usage=list(map(lambda p: (p.mountpoint, psutil.disk_usage(p.mountpoint).percent), psutil.disk_partitions())),
-                   states=[])
+                   states=[],
+                   issues=[])
+        
+        if ans['ram'] > 90:
+            ans['issues'].append('High RAM usage')
+        if ans['cpu'] > 90:
+            ans['issues'].append('High CPU usage')
+        for du in ans['disk_usage']:
+            if du[1] > 90:
+                ans['issues'].append('High HDD usage at '+du[0])
         
         for callback in HttpMonitor._callbacks:
             ans['states'].append(callback())
