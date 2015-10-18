@@ -37,7 +37,7 @@ class Runner(object):
         state = dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time()-self.runTime) if self.runTime else None), issues=[])
         if not state['runned']:
             state['issues'].append('Not runned')
-        elif state['runned'] < 120:
+        elif state['up_time'] < 120:
             state['issues'].append('Short run time')
         return state
     
