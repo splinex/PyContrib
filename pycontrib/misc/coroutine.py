@@ -18,7 +18,7 @@ def unfailable_coroutine(func):
 #                 Mailer.send(traceback.format_exc())
                 yield tornado.gen.Task(tornado.ioloop.IOLoop.current().add_timeout, datetime.timedelta(milliseconds=1000))
                 logging.error(traceback.format_stack())
-        return result
+        raise tornado.gen.Return(result)
     return funcWrapped
 
 #coroutine with logging
@@ -32,5 +32,5 @@ def reporting_coroutine(func):
             logging.error(traceback.format_exc())
 #             Mailer.send(traceback.format_exc())
             logging.error(traceback.format_stack())
-        return result
+        raise tornado.gen.Return(result)
     return funcWrapped

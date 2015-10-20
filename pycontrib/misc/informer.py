@@ -1,4 +1,4 @@
-import smtplib, logging, asyncio, sys
+import smtplib, logging, sys
 
 class Mailer(object):
     _smtpServer = None
