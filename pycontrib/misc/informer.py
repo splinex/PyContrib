@@ -64,12 +64,14 @@ class Informer(object):
     @classmethod
     def initEnv(cls, env):
         if env.log == '/dev/stdout':
-            logging.basicConfig(stream=sys.stdout, level=(logging.DEBUG if env.debug else logging.CRITICAL),
-                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port))
+            kwargs = dict(stream=sys.stdout)
         else:
-            logging.basicConfig(filename=env.log, level=(logging.DEBUG if env.debug else logging.CRITICAL),
-                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port))
-
+            kwargs = dict(filename=env.log)
+            
+        logging.basicConfig(level=(logging.DEBUG if env.debug else logging.ERROR),
+                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port), 
+                            **kwargs)
+        
         if 'MAILING' in env.config and env.config['MAILING']['enabled'] == 'True':
             Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
                                           env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port'])
