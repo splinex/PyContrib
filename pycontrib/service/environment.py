@@ -31,8 +31,8 @@ class Environment(object):
         
         try:
             self.host = self.config['NETWORK'].get('host', '127.0.0.1')
-            self.port = int(self.config['NETWORK']['port'])
-            self.name = self.config['GENERAL']['name']
+            self.port = int(self.config['NETWORK'].get('port', '0'))
+            self.name = self.config['GENERAL'].get('name', 'service')
             self.debug = (self.config['GENERAL'].get('debug', 'False') == 'True')
             self.home = self.config['GENERAL'].get('home', '')
             self.log = self.config['GENERAL'].get('log', '{0}/{1}.log'.format(self.home, self.name))

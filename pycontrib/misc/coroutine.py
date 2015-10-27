@@ -1,5 +1,6 @@
-import logging, traceback, datetime
+import traceback, datetime
 import tornado.gen
+from pycontrib.misc.informer import Informer
 # from sr''c.lib.mailing import Mailer
 
 #decorator for functions that should not ever fails
@@ -14,11 +15,12 @@ def unfailable_coroutine(func):
                 result = yield func(*args)
             except:
                 fails = True
-                logging.error(traceback.format_exc())
+                Informer.error(traceback.format_exc())
 #                 Mailer.send(traceback.format_exc())
                 yield tornado.gen.Task(tornado.ioloop.IOLoop.current().add_timeout, datetime.timedelta(milliseconds=1000))
-                logging.error(traceback.format_stack())
-        raise tornado.gen.Return(result)
+                Informer.error(traceback.format_stack())
+#         raise tornado.gen.Return(result)
+        return result
     return funcWrapped
 
 #coroutine with logging
@@ -29,8 +31,10 @@ def reporting_coroutine(func):
         try:
             result = yield func(*args)
         except:
-            logging.error(traceback.format_exc())
+            pass
+#             Informer.error(traceback.format_exc())
 #             Mailer.send(traceback.format_exc())
-            logging.error(traceback.format_stack())
-        raise tornado.gen.Return(result)
+#             Informer.error(traceback.format_stack())
+#         raise tornado.gen.Return(result)
+        return result
     return funcWrapped
