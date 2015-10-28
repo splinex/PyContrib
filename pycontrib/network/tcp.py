@@ -60,7 +60,8 @@ class ReconnectableTCPClient(TCPClient):
         self._state = CONNECTION_STATE.CONNECTING
         yield tornado.gen.Task(IOLoop.current().add_timeout, datetime.timedelta(seconds=randint(1,10)))
         try:
-            self.stream = yield TCPClient.connect(self, self.host, self.port, max_write_buffer_size=5000000)
+            #TODO: patch library in contrib
+            self.stream = yield TCPClient.connect(self, self.host, self.port) #, max_write_buffer_size=5000000)
         except Exception as e:
             Informer.info(e)
             self.disconnect()                      
