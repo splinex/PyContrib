@@ -1,30 +1,24 @@
+from pycontrib.misc.informer import Informer
+from tornado.ioloop import PeriodicCallback
+from datetime import datetime
+
 class NetworkRecorder(object):
-    '''
-    base class for network connectors
-    '''
-    
+
     def __init__(self, host, port, callback, **kargs):
         self.host = host
         self.port = port
         self.callback = callback
         self.storePath = kargs.get('storepath', '/tmp')
         self.chunkPeriod = kargs.get('chunkperiod', 600)
-        self.storeStream = eval(kargs.get('storestream', 'True'))
         self.bufferSize = int(kargs.get('writebuffersize', 10000000))
         self.bytes = 0
         self.lastActivity = datetime.now()
         self.chunkFn = None
-        if self.storeStream:
-            self.writeBuffer = None
-            self._chunk_rotator()
-            self.chunk_rotator = PeriodicCallback(self._chunk_rotator, self.chunkPeriod*1000)
-            self.chunk_rotator.start()
-            
-    def start_record(self):
         self.recordInProgress = True
-        
-    def stop_record(self):
-        self.recordInProgress = False
+        self.writeBuffer = None
+        self._chunk_rotator()
+        self.chunk_rotator = PeriodicCallback(self._chunk_rotator, self.chunkPeriod*1000)
+        self.chunk_rotator.start()
     
     def _chunk_rotator(self):
         if self.writeBuffer:
@@ -36,7 +30,7 @@ class NetworkRecorder(object):
         self.writeBuffer = open(self.chunkFn, 'wb+', buffering=self.bufferSize)
         Informer.info('Write to {0}'.format(self.chunkFn))        
     
-    def chunk_recieved(self, chunk):
+    def on_chunk(self, chunk):
         recvd = len(chunk)
         if recvd == 0:
             return
@@ -44,5 +38,5 @@ class NetworkRecorder(object):
         self.lastActivity = datetime.now()
         if self.callback:
             self.callback(chunk)
-        if self.storeStream:
+        if self.recordInProgress:
             self.writeBuffer.write(chunk)

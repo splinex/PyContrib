@@ -68,7 +68,7 @@ class Informer(object):
         else:
             kwargs = dict(filename=env.log)
             
-        logging.basicConfig(level=(logging.DEBUG if env.debug else logging.ERROR),
+        logging.basicConfig(level=(logging.INFO if env.debug else logging.ERROR),
                             format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port), 
                             **kwargs)
         

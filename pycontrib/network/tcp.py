@@ -5,7 +5,7 @@ from tornado.tcpserver import TCPServer
 
 from collections import namedtuple
 from functools import partial
-import datetime
+from datetime import datetime
 from random import randint
 from abc import ABCMeta, abstractmethod
 
@@ -40,16 +40,40 @@ class ReconnectableTCPClient(TCPClient):
         self.host = host
         self.port = port
         self._state = CONNECTION_STATE.DISCONNECTED
+        self.lastActivity = datetime.now()
+        self.tcpTimeout = 60
+        self.fullBuffer = False
+        self.upStreamInProgress = True
+        
+        self.band_rotator = PeriodicCallback(partial(ReconnectableTCPClient._band, self), 1000)
+        self.band_rotator.start()
+        
+        self.inBytes = 0
+        self.outBytes = 0
+        self.droppedBytes = 0
+        self.inBand = 0
+        self.outBand = 0
+        self.droppedBand = 0
+        self.bandHistory = [(0,0,0),]*300 
+        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 1000)
+        self.connection_rotator.start()
+        
 
-    @property
-    def state(self):
-        if self._state == CONNECTION_STATE.CONNECTED and not self.alive():
-            self._state = CONNECTION_STATE.CHECKFAILS
-        return self._state
-    
     @reporting_coroutine
     @tornado.gen.coroutine
-    def _connect(self):        
+    def _band(self):
+        self.inBand = self.inBytes // 1024
+        self.outBand = self.outBytes // 1024
+        self.droppedBand = self.droppedBytes // 1024
+        self.inBytes = 0
+        self.outBytes = 0
+        self.droppedBytes = 0
+        self.bandHistory = self.bandHistory[1:] + [(self.inBand, self.outBand, self.droppedBand)]
+        
+    @reporting_coroutine
+    @tornado.gen.coroutine
+    def _connect(self):
+        
         if self.state in (CONNECTION_STATE.CONNECTING, CONNECTION_STATE.CONNECTED): 
             return
         
@@ -70,13 +94,54 @@ class ReconnectableTCPClient(TCPClient):
         self.stream.set_close_callback(self._on_close)
         self._state = CONNECTION_STATE.CONNECTED
         Informer.info('Connected to target at tcp://{0}:{1}'.format(self.host, self.port))
-        self.on_connect()
+        self._on_connect()
         
-    def connect(self):
-        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 5000)
-        self.connection_rotator.start()
-        
-    def disconnect(self):
+    @reporting_coroutine
+    @tornado.gen.coroutine
+    def _on_connect(self):
+        while 1:
+            try:
+                chunk = yield self.stream.read_bytes(10000000, partial=True)
+            except:
+                self.disconnect()
+                return
+            self.inBytes += len(chunk)
+            self.on_chunk(chunk)
+            self.lastActivity = datetime.now()
+            
+    def on_chunk(self, chunk):
+        pass
+    
+    @reporting_coroutine
+    @tornado.gen.coroutine
+    def write(self, chunk):
+        chunkLen = len(chunk)
+        if self.state != CONNECTION_STATE.CONNECTED:
+            self.droppedBytes += chunkLen
+            return
+        elif self.fullBuffer and self.stream.writing():
+            self.droppedBytes += chunkLen
+            return
+            
+        self.fullBuffer = False
+        if self.upStreamInProgress:
+            try:
+                yield self.stream.write(chunk)
+                self.lastActivity = datetime.now()            
+            except tornado.iostream.StreamClosedError as e:
+                Informer.info(e)
+                self.disconnect()
+            except tornado.iostream.StreamBufferFullError as e:
+                self.fullBuffer = True
+                Informer.info(e)
+            except Exception as e:
+                Informer.info(e)
+            else:
+                self.outBytes += chunkLen
+        else:
+            self.lastActivity = datetime.now()
+
+    def reconnect(self):
         Informer.info('Disconnecting from target at tcp://{0}:{1}'.format(self.host, self.port))
         self._state = CONNECTION_STATE.DISCONNECTED
         if self.stream and not self.stream.closed(): 
@@ -85,16 +150,16 @@ class ReconnectableTCPClient(TCPClient):
     def _on_close(self, *args, **kwargs):
         self._state = CONNECTION_STATE.DISCONNECTED
         self.on_close()
-        
-    def on_connect(self):
-        pass
-        
-    def on_close(self, *args, **kwargs):
-        pass
-    
+                
     def alive(self):
-        return True
+        return (datetime.now()-self.lastActivity).seconds < self.tcpTimeout
     
+    @property
+    def state(self):
+        if self._state == CONNECTION_STATE.CONNECTED and not self.alive():
+            self._state = CONNECTION_STATE.CHECKFAILS
+        return self._state
+        
 class InServer(TCPServer):
     
     def __init__(self, env):
