@@ -63,9 +63,7 @@ class ReconnectableTCPClient(TCPClient):
     @reporting_coroutine
     @tornado.gen.coroutine
     def _band(self):
-        
-        
-        self.inBand = (self.inBytes - self.inBandPrev) // 1024
+        self.inBand = (self.inBytes - self.inBytesPrev) // 1024
         self.outBand = (self.outBytes - self.outBytesPrev) // 1024
         self.droppedBand = (self.droppedBytes - self.droppedBytesPrev) // 1024
         self.inBytes, self.outBytes, self.droppedBytes = self.inBytes, self.outBytes, self.droppedBytes % (1024**4)
