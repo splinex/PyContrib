@@ -51,23 +51,25 @@ class ReconnectableTCPClient(TCPClient):
         self.inBytes = 0
         self.outBytes = 0
         self.droppedBytes = 0
+        self.inBytesPrev, self.outBytesPrev, self.droppedBytesPrev = self.inBytes, self.outBytes, self.droppedBytes
         self.inBand = 0
         self.outBand = 0
         self.droppedBand = 0
         self.bandHistory = [(0,0,0),]*300 
-        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 1000)
+        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 5000+randint(0,2000))
         self.connection_rotator.start()
         
 
     @reporting_coroutine
     @tornado.gen.coroutine
     def _band(self):
-        self.inBand = self.inBytes // 1024
-        self.outBand = self.outBytes // 1024
-        self.droppedBand = self.droppedBytes // 1024
-        self.inBytes = 0
-        self.outBytes = 0
-        self.droppedBytes = 0
+        
+        
+        self.inBand = (self.inBytes - self.inBandPrev) // 1024
+        self.outBand = (self.outBytes - self.outBytesPrev) // 1024
+        self.droppedBand = (self.droppedBytes - self.droppedBytesPrev) // 1024
+        self.inBytes, self.outBytes, self.droppedBytes = self.inBytes, self.outBytes, self.droppedBytes % (1024**4)
+        self.inBytesPrev, self.outBytesPrev, self.droppedBytesPrev = self.inBytes, self.outBytes, self.droppedBytes
         self.bandHistory = self.bandHistory[1:] + [(self.inBand, self.outBand, self.droppedBand)]
         
     @reporting_coroutine
@@ -82,13 +84,12 @@ class ReconnectableTCPClient(TCPClient):
             
         Informer.info('Connecting to target at tcp://{0}:{1}'.format(self.host, self.port))     
         self._state = CONNECTION_STATE.CONNECTING
-        yield tornado.gen.Task(IOLoop.current().add_timeout, datetime.timedelta(seconds=randint(1,10)))
         try:
             #TODO: patch library in contrib
             self.stream = yield TCPClient.connect(self, self.host, self.port) #, max_write_buffer_size=5000000)
         except Exception as e:
             Informer.info(e)
-            self.disconnect()                      
+            self.reconnect()
             return
     
         self.stream.set_close_callback(self._on_close)
