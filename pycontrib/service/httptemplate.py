@@ -5,6 +5,7 @@ Created on Jul 15, 2015
 '''
 import tornado.web, tornado.template
 from pycontrib.service.login import LoginRequestHandler
+from pycontrib.misc.informer import Informer
 
 class HttpTemplateRequestHandler(LoginRequestHandler):
     
@@ -17,10 +18,13 @@ class HttpTemplateRequestHandler(LoginRequestHandler):
         cls = type(self)
         if cls._indext == None:
             if not cls.meta:
-                raise NotImplementedError('meta should be defined')            
+                raise NotImplementedError('meta should be defined')
             try:
-                loader = tornado.template.Loader('{0}'.format(env.config['HTML']['templatedir']))
+                templatedir = env.config['HTML']['templatedir']
+                if templatedir[0] != '/':
+                    templatedir = '{0}/{1}'.format(env.home, templatedir)
+                loader = tornado.template.Loader(templatedir)
                 cls._indext = loader.load(cls.meta['template'])
             except Exception as e:
-                print('can not load templates! {0}'.format(e))
+                Informer.error('can not load templates! {0}'.format(e))
                 cls._indext = None
