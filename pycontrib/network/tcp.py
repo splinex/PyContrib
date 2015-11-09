@@ -148,7 +148,6 @@ class ReconnectableTCPClient(TCPClient):
         
     def _on_close(self, *args, **kwargs):
         self._state = CONNECTION_STATE.DISCONNECTED
-        self.on_close()
                 
     def alive(self):
         return (datetime.now()-self.lastActivity).seconds < self.tcpTimeout
@@ -158,6 +157,11 @@ class ReconnectableTCPClient(TCPClient):
         if self._state == CONNECTION_STATE.CONNECTED and not self.alive():
             self._state = CONNECTION_STATE.CHECKFAILS
         return self._state
+    
+    def __del__(self):
+        self.reconnect()
+        self.connection_rotator.stop()
+        self.band_rotator.stop()
         
 class InServer(TCPServer):
     
