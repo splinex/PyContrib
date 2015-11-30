@@ -43,6 +43,10 @@ class HttpMonitor(tornado.web.RequestHandler):
             ans['states'].append(callback())
             
         self.set_status(200)
+        self.set_header('Access-Control-Allow-Origin', '*')
+        self.set_header('Access-Control-Expose-Headers', 'Access-Control-Allow-Origin')
+        self.set_header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
+        self.set_header('Content-Type', 'application/json')
         self.write(json.dumps(ans, indent=2))
         self.finish()
         
