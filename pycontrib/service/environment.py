@@ -24,6 +24,8 @@ class Environment(object):
         self.config.optionxform = str
         self.config.read(configFn)
         
+        self.configFn = configFn
+        
         if args.port:
             self.config['NETWORK']['port'] = args.port
         if args.debug:
