@@ -12,8 +12,9 @@ class HttpMonitor(tornado.web.RequestHandler):
     
     _callbacks = []
     
-    def initialize(self, env):
+    def initialize(self, env, defaults={}):
         self.env = env
+        self.defaults = defaults
     
     @classmethod
     def addCallback(cls, callback):
@@ -21,7 +22,9 @@ class HttpMonitor(tornado.web.RequestHandler):
         
     @tornado.gen.coroutine
     def get(self, *args):
-        ans = dict(name = self.env.name,
+        ans = {}
+        ans.update(self.defaults)
+        ans.update(dict(name = self.env.name,
                    host=self.env.host, 
                    ram=psutil.virtual_memory().percent,
                    cpu=psutil.cpu_percent(),
@@ -29,7 +32,7 @@ class HttpMonitor(tornado.web.RequestHandler):
                    recv=psutil.net_io_counters().bytes_recv,
                    disk_usage=list(map(lambda p: (p.mountpoint, psutil.disk_usage(p.mountpoint).percent), psutil.disk_partitions())),
                    states=[],
-                   issues=[])
+                   issues=[]))
         
         if ans['ram'] > 90:
             ans['issues'].append('High RAM usage')
