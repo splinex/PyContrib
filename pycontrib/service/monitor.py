@@ -12,7 +12,7 @@ class HttpMonitor(tornado.web.RequestHandler):
     
     _callbacks = []
     
-    def initialize(self, env, defaults={}):
+    def initialize(self, env, defaults):
         self.env = env
         self.defaults = defaults
     

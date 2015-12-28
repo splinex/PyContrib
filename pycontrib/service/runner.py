@@ -43,13 +43,12 @@ class Runner(object):
     
     @asyncio.coroutine
     def start(self):                 
-
-        while 1: 
+        while 1:
             cmd = self.genCmd()                
             cmds = cmd.split()
             if self.runned():
                 self.stop()
-                yield from asyncio.sleep(self.restart_timeout)
+            yield from asyncio.sleep(self.restart_timeout)
             Informer.info('Run: {0}'.format(cmd))
             self.proc = yield from asyncio.create_subprocess_exec(*cmds, stdout=self.stdout, stderr=asyncio.subprocess.STDOUT)
             self.runTime = time.time()
