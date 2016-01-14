@@ -89,4 +89,6 @@ class Informer(object):
     def info(cls, msg):
         logging.info(msg)
         
-
+    @classmethod
+    def mail(cls, msg):
+        Mailer.send(msg)
