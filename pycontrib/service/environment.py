@@ -9,26 +9,29 @@ from pycontrib.misc.informer import Informer
 
 class Environment(object):
     
-    def __init__(self):
-        argparser = argparse.ArgumentParser()
-        argparser.add_argument("--config", help="configuration file - required")
-        argparser.add_argument("--port", help="binding port")
-        argparser.add_argument("--debug", help="debug mode")
-        args = argparser.parse_args()
-        if args.config:
-            configFn = args.config
+    def __init__(self, config_file=None):
+        if not config_file:
+            argparser = argparse.ArgumentParser()
+            argparser.add_argument("--config", help="configuration file - required")
+            argparser.add_argument("--port", help="binding port")
+            argparser.add_argument("--debug", help="debug mode")
+            args = argparser.parse_args()
+            if args.config:
+                configFn = args.config
+            else:
+                raise BaseException('Use --help for args')
         else:
-            raise BaseException('Use --help for args')     
-           
+            configFn = config_file
+
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.config.read(configFn)
-        
+
         self.configFn = configFn
-        
-        if args.port:
+
+        if not config_file and args.port:
             self.config['NETWORK']['port'] = args.port
-        if args.debug:
+        if not config_file and args.debug:
             self.config['GENERAL']['debug'] = 'True'
         
         try:
