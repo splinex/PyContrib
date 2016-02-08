@@ -3,25 +3,33 @@ Created on Jun 18, 2015
 
 @author: maxim
 '''
+import logging
+import argparse
+import configparser
 
-import argparse, configparser, logging
 from pycontrib.misc.informer import Informer
 
-class _Environment(object):
 
+class _Environment:
     def __init__(self, config):
+        if 'LOGIN' in config:
+            cl = config['LOGIN']
+            login = {'admins': {cl['adminlogin']: cl['adminpass']}, 'users': {cl['userlogin']: cl['userpass']}}
+        else:
+            login = None
+
+        network = config['NETWORK']
+        general = config['GENERAL']
+
+        self.login = login
+        self.host = network.get('host', '127.0.0.1')
+        self.port = int(network.get('port', '0'))
+        self.name = general.get('name', 'service')
+        self.debug = (general.get('debug', 'False') == 'True')
+        self.home = general.get('home', '')
+        self.log = general.get('log', '{0}/{1}.log'.format(self.home, self.name))
+
         self.config = config
-
-        self.host = self.config['NETWORK'].get('host', '127.0.0.1')
-        self.port = int(self.config['NETWORK'].get('port', '0'))
-        self.name = self.config['GENERAL'].get('name', 'service')
-        self.debug = (self.config['GENERAL'].get('debug', 'False') == 'True')
-        self.home = self.config['GENERAL'].get('home', '')
-        self.log = self.config['GENERAL'].get('log', '{0}/{1}.log'.format(self.home, self.name))
-
-        if 'LOGIN' in self.config:
-            cl = self.config['LOGIN']
-            self.login = {'admins': {cl['adminlogin']: cl['adminpass']}, 'users': {cl['userlogin']: cl['userpass']}}
 
         Informer.initEnv(self)
 
@@ -32,7 +40,7 @@ class _Environment(object):
         if not config_file:
             return None
 
-        config = cls.__parse_config(config_file)
+        config = cls._parse_config_ini(config_file)
         return cls(config)
 
     @classmethod
@@ -41,13 +49,13 @@ class _Environment(object):
         argparser.add_argument("--config", help="configuration file - required")
         argparser.add_argument("--port", help="binding port")
         argparser.add_argument("--debug", help="debug mode")
-        args = argparser.parse_args()
-        if args.config:
-            configFn = args.config
-        else:
-            raise BaseException('Use --help for args')
 
-        config = cls.__parse_config(configFn)
+        args = argparser.parse_args()
+
+        if not args.config:
+            raise Exception('Use --help for args')
+
+        config = cls._parse_config_ini(args.config)
 
         if args.port:
             config['NETWORK']['port'] = args.port
@@ -56,11 +64,10 @@ class _Environment(object):
 
         return cls(config)
 
-    @staticmethod
-    def __parse_config(configFn):
+    def _parse_config_ini(self, file_name):
         config = configparser.ConfigParser()
         config.optionxform = str
-        config.read(configFn)
+        config.read(file_name)
 
         return config
 
