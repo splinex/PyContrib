@@ -64,7 +64,8 @@ class _Environment:
 
         return cls(config)
 
-    def _parse_config_ini(self, file_name):
+    @staticmethod
+    def _parse_config_ini(file_name):
         config = configparser.ConfigParser()
         config.optionxform = str
         config.read(file_name)
