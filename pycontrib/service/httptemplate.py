@@ -23,7 +23,7 @@ class HttpTemplateRequestHandler(LoginRequestHandler):
                 templatedir = env.config['HTML']['templatedir']
                 if templatedir[0] != '/':
                     templatedir = '{0}/{1}'.format(env.home, templatedir)
-                loader = pycontrib.tornado.template.Loader(templatedir)
+                loader = tornado.template.Loader(templatedir)
                 cls._indext = loader.load(cls.meta['template'])
             except Exception as e:
                 Informer.error('can not load templates! {0}'.format(e))
