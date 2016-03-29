@@ -6,5 +6,7 @@ setup(name = 'pycontrib',
       packages = ['pycontrib', 
                   'pycontrib.service', 
                   'pycontrib.misc', 
-                  'pycontrib.tornado'],
+                  'pycontrib.tornado',
+                  'pycontrib.tornado.platform',
+                  ],
       )
