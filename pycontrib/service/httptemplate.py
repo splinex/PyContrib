@@ -3,7 +3,7 @@ Created on Jul 15, 2015
 
 @author: maxim
 '''
-import pycontrib.tornado.template
+import tornado.template
 from pycontrib.service.login import LoginRequestHandler
 from pycontrib.misc.informer import Informer
 

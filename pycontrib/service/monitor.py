@@ -4,12 +4,12 @@ Created on Jul 7, 2015
 @author: maxim
 '''
 
-import pycontrib.tornado.web 
-import pycontrib.tornado.gen
+import tornado.web 
+import tornado.gen
 import json
 import psutil
 
-class HttpMonitor(pycontrib.tornado.web.RequestHandler):
+class HttpMonitor(tornado.web.RequestHandler):
     
     _callbacks = []
     
@@ -21,7 +21,7 @@ class HttpMonitor(pycontrib.tornado.web.RequestHandler):
     def addCallback(cls, callback):
         cls._callbacks.append(callback)
         
-    @pycontrib.tornado.gen.coroutine
+    @tornado.gen.coroutine
     def get(self, *args):
         ans = {}
         ans.update(self.defaults)

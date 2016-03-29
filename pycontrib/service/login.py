@@ -1,8 +1,8 @@
 
 import time
-import pycontrib.tornado.web
+import tornado.web
 
-class LoginRequestHandler(pycontrib.tornado.web.RequestHandler):
+class LoginRequestHandler(tornado.web.RequestHandler):
     
     def get_current_user(self):
         user = self.get_secure_cookie('user')
