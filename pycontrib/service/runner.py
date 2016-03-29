@@ -34,7 +34,7 @@ class Runner(object):
         raise NotImplementedError('To be implemented')
     
     def getState(self):
-        state = dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time()-self.runTime) if self.runTime else None), issues=[])
+        state = dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time() - self.runTime) if self.runTime else None), issues=[])
         if not state['runned']:
             state['issues'].append('Not runned')
         elif state['up_time'] < 120:
@@ -132,7 +132,7 @@ class HlsRunner(SimpleRunner):
         i = self.m3u8Data.find('#EXT-X-ENDLIST')
         if i != -1:
             Informer.info('Trancating #EXT-X-ENDLIST')
-            self.m3u8Data =self.m3u8Data[:i]
+            self.m3u8Data = self.m3u8Data[:i]
             w = open(self.outputFn, 'wt')
             w.write(self.m3u8Data)
             w.close()

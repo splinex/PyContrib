@@ -3,7 +3,7 @@ import tornado.gen
 from pycontrib.misc.informer import Informer
 # from sr''c.lib.mailing import Mailer
 
-#decorator for functions that should not ever fails
+# decorator for functions that should not ever fails
 def unfailable_coroutine(func):
     @tornado.gen.coroutine
     def funcWrapped(*args):
@@ -23,7 +23,7 @@ def unfailable_coroutine(func):
 #         return result
     return funcWrapped
 
-#coroutine with logging
+# coroutine with logging
 def reporting_coroutine(func):
     @tornado.gen.coroutine
     def funcWrapped(*args):

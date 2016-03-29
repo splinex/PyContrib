@@ -4,11 +4,12 @@ Created on Jul 7, 2015
 @author: maxim
 '''
 
-import tornado.web, tornado.gen
+import pycontrib.tornado.web 
+import pycontrib.tornado.gen
 import json
 import psutil
 
-class HttpMonitor(tornado.web.RequestHandler):
+class HttpMonitor(pycontrib.tornado.web.RequestHandler):
     
     _callbacks = []
     
@@ -20,12 +21,12 @@ class HttpMonitor(tornado.web.RequestHandler):
     def addCallback(cls, callback):
         cls._callbacks.append(callback)
         
-    @tornado.gen.coroutine
+    @pycontrib.tornado.gen.coroutine
     def get(self, *args):
         ans = {}
         ans.update(self.defaults)
-        ans.update(dict(name = self.env.name,
-                   host=self.env.host, 
+        ans.update(dict(name=self.env.name,
+                   host=self.env.host,
                    ram=psutil.virtual_memory().percent,
                    cpu=psutil.cpu_percent(),
                    sent=psutil.net_io_counters().bytes_sent,
@@ -40,7 +41,7 @@ class HttpMonitor(tornado.web.RequestHandler):
             ans['issues'].append('High CPU usage')
         for du in ans['disk_usage']:
             if du[1] > 90:
-                ans['issues'].append('High HDD usage at '+du[0])
+                ans['issues'].append('High HDD usage at ' + du[0])
         
         for callback in HttpMonitor._callbacks:
             ans['states'].append(callback())

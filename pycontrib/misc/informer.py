@@ -45,12 +45,12 @@ class Mailer(object):
         if msg == Mailer._prevMsg:
             return
         if not Mailer._smtpHost:
-            #logging.error('Mailer was not inited')
+            # logging.error('Mailer was not inited')
             return
         Mailer.connect()
         try:
-            Mailer._smtpServer.sendmail(Mailer._fromAddr, 
-                                        (Mailer._toAddr,), 
+            Mailer._smtpServer.sendmail(Mailer._fromAddr,
+                                        (Mailer._toAddr,),
                                         "From: %s\r\nTo: %s\r\nSubject: Message from %s (%s)\r\n\r\n%s\r\n\r\n" % (Mailer._fromAddr, Mailer._toAddr, Mailer._name, Mailer._prefix, msg))
         except Exception as e:
             logging.error(e)
@@ -69,11 +69,11 @@ class Informer(object):
             kwargs = dict(filename=env.log)
             
         logging.basicConfig(level=(logging.INFO if env.debug else logging.ERROR),
-                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port), 
+                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port),
                             **kwargs)
         
         if 'MAILING' in env.config and env.config['MAILING']['enabled'] == 'True':
-            Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'], 
+            Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'],
                                           env.config['MAILING']['toaddr'], env.config['MAILING']['password'], env.config['NETWORK']['port'])
     
     @classmethod

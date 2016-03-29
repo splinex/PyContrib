@@ -11,9 +11,9 @@ def TreeDictToPlainDict(d, root=True):
         for key, val in d.items():
             for subKey, subVal in TreeDictToPlainDict(val, False).items():
                 if not subKey == noneKey: 
-                    plain['{dot}{0}{1}'.format(key, subKey, dot='' if root else '.')]=subVal
+                    plain['{dot}{0}{1}'.format(key, subKey, dot='' if root else '.')] = subVal
                 else:
-                    plain['{dot}{0}'.format(key, dot='' if root else '.')]=subVal
+                    plain['{dot}{0}'.format(key, dot='' if root else '.')] = subVal
     elif type(d) in (list, tuple):
         for i in range(len(d)):
             for subKey, subVal in TreeDictToPlainDict(d[i], False).items():

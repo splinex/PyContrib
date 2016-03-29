@@ -17,7 +17,7 @@ class NetworkRecorder(object):
         self.recordInProgress = True
         self.writeBuffer = None
         self._chunk_rotator()
-        self.chunk_rotator = PeriodicCallback(self._chunk_rotator, self.chunkPeriod*1000)
+        self.chunk_rotator = PeriodicCallback(self._chunk_rotator, self.chunkPeriod * 1000)
         self.chunk_rotator.start()
     
     def _chunk_rotator(self):

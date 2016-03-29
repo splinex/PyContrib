@@ -55,8 +55,8 @@ class ReconnectableTCPClient(TCPClient):
         self.inBand = 0
         self.outBand = 0
         self.droppedBand = 0
-        self.bandHistory = [(0,0,0),]*300 
-        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 5000+randint(0,2000))
+        self.bandHistory = [(0, 0, 0), ] * 300 
+        self.connection_rotator = PeriodicCallback(partial(ReconnectableTCPClient._connect, self), 5000 + randint(0, 2000))
         self.connection_rotator.start()
         
 
@@ -66,7 +66,7 @@ class ReconnectableTCPClient(TCPClient):
         self.inBand = (self.inBytes - self.inBytesPrev) // 1024
         self.outBand = (self.outBytes - self.outBytesPrev) // 1024
         self.droppedBand = (self.droppedBytes - self.droppedBytesPrev) // 1024
-        self.inBytes, self.outBytes, self.droppedBytes = self.inBytes, self.outBytes, self.droppedBytes % (1024**4)
+        self.inBytes, self.outBytes, self.droppedBytes = self.inBytes, self.outBytes, self.droppedBytes % (1024 ** 4)
         self.inBytesPrev, self.outBytesPrev, self.droppedBytesPrev = self.inBytes, self.outBytes, self.droppedBytes
         self.bandHistory = self.bandHistory[1:] + [(self.inBand, self.outBand, self.droppedBand)]
         
@@ -83,8 +83,8 @@ class ReconnectableTCPClient(TCPClient):
         Informer.info('Connecting to target at tcp://{0}:{1}'.format(self.host, self.port))     
         self._state = CONNECTION_STATE.CONNECTING
         try:
-            #TODO: patch library in contrib
-            self.stream = yield TCPClient.connect(self, self.host, self.port) #, max_write_buffer_size=5000000)
+            # TODO: patch library in contrib
+            self.stream = yield TCPClient.connect(self, self.host, self.port)  # , max_write_buffer_size=5000000)
         except Exception as e:
             Informer.info(e)
             self.reconnect()
@@ -150,7 +150,7 @@ class ReconnectableTCPClient(TCPClient):
         self._state = CONNECTION_STATE.DISCONNECTED
                 
     def alive(self):
-        return (datetime.now()-self.lastActivity).seconds < self.tcpTimeout
+        return (datetime.now() - self.lastActivity).seconds < self.tcpTimeout
     
     @property
     def state(self):
@@ -212,7 +212,7 @@ class InServer(TCPServer):
         self.stream = stream
         while not self.stream.closed():
             try:
-                chunk = yield stream.read_bytes(188*1000, partial=True)
+                chunk = yield stream.read_bytes(188 * 1000, partial=True)
                 self.trafficIn += len(chunk)
                 self.stream_callback(chunk)
             except:
