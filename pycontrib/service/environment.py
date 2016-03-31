@@ -30,6 +30,7 @@ class Environment(Singleton):
             config_file = args.config
         else:
             args = None
+        self.configFn = config_file
             
         config = configparser.ConfigParser()
         config.optionxform = str
