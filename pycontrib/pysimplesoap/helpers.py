@@ -127,6 +127,7 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
     log.debug('Processing element %s %s' % (element_name, element_type))
 
     # iterate over inner tags of the element definition:
+    struct = None
     for tag in node:
 
         # sanity checks (skip superfluous xml tags, resolve aliases, etc.):
@@ -287,10 +288,9 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
                                 qualified, struct=base_struct)
 
         # add the processed element to the main dictionary (if not extension):
-        if new_struct:
+        if new_struct or struct:
             key = make_key(element_name, element_type, namespace)
             elements.setdefault(key, Struct(key)).update(struct)
-
 
 def postprocess_element(elements, processed):
     """Fix unresolved references"""
