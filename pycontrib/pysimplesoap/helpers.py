@@ -248,7 +248,10 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
                     if len(children) > 1 or (dialect in ('jetty', )):
                         # Jetty style support
                         # {'ClassName': [{'attr1': val1, 'attr2': val2}]
-                        fn.array = True
+                         
+#                         fn.array = True
+#                         struct.array = True
+                        pass
                     else:
                         # .NET style now matches Jetty style
                         # {'ClassName': [{'attr1': val1, 'attr2': val2}]
@@ -298,8 +301,8 @@ def postprocess_element(elements, processed):
 
     # (elements referenced before its definition, thanks .net)
     # avoid already processed elements:
-    if elements in processed:
-        return
+    #if elements in processed:
+    #    return
     processed.append(elements)
 
     for k, v in elements.items():
