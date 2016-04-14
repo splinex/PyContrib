@@ -9,6 +9,7 @@ from tornado.log import gen_log, app_log
 from tornado.testing import AsyncHTTPTestCase, gen_test, bind_unused_port, ExpectLog
 from tornado.test.util import unittest
 from tornado.web import Application, RequestHandler
+from tornado.util import u
 
 try:
     import tornado.websocket  # noqa
@@ -87,11 +88,6 @@ class AsyncPrepareHandler(TestWebSocketHandler):
         self.write_message(message)
 
 
-class PathArgsHandler(TestWebSocketHandler):
-    def open(self, arg):
-        self.write_message(arg)
-
-
 class WebSocketBaseTestCase(AsyncHTTPTestCase):
     @gen.coroutine
     def ws_connect(self, path, compression_options=None):
@@ -123,8 +119,6 @@ class WebSocketTest(WebSocketBaseTestCase):
             ('/error_in_on_message', ErrorInOnMessageHandler,
              dict(close_future=self.close_future)),
             ('/async_prepare', AsyncPrepareHandler,
-             dict(close_future=self.close_future)),
-            ('/path_args/(.*)', PathArgsHandler,
              dict(close_future=self.close_future)),
         ])
 
@@ -165,9 +159,9 @@ class WebSocketTest(WebSocketBaseTestCase):
     @gen_test
     def test_unicode_message(self):
         ws = yield self.ws_connect('/echo')
-        ws.write_message(u'hello \u00e9')
+        ws.write_message(u('hello \u00e9'))
         response = yield ws.read_message()
-        self.assertEqual(response, u'hello \u00e9')
+        self.assertEqual(response, u('hello \u00e9'))
         yield self.close(ws)
 
     @gen_test
@@ -250,12 +244,6 @@ class WebSocketTest(WebSocketBaseTestCase):
         # result in a timeout on test shutdown (and a memory leak).
         ws = yield self.ws_connect('/async_prepare')
         ws.write_message('hello')
-        res = yield ws.read_message()
-        self.assertEqual(res, 'hello')
-
-    @gen_test
-    def test_path_args(self):
-        ws = yield self.ws_connect('/path_args/hello')
         res = yield ws.read_message()
         self.assertEqual(res, 'hello')
 

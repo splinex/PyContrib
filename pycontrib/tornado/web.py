@@ -56,7 +56,9 @@ request.
 
 """
 
-from __future__ import absolute_import, division, print_function, with_statement
+from __future__ import (absolute_import, division,
+                        print_function, with_statement)
+
 
 import base64
 import binascii
@@ -90,7 +92,7 @@ from tornado import stack_context
 from tornado import template
 from tornado.escape import utf8, _unicode
 from tornado.util import (import_object, ObjectDict, raise_exc_info,
-                          unicode_type, _websocket_mask, re_unescape)
+                          unicode_type, _websocket_mask)
 from tornado.httputil import split_host_and_port
 
 
@@ -183,7 +185,7 @@ class RequestHandler(object):
         self.initialize(**kwargs)
 
     def initialize(self):
-        """Hook for subclass initialization. Called for each request.
+        """Hook for subclass initialization.
 
         A dictionary passed as the third argument of a url spec will be
         supplied as keyword arguments to initialize().
@@ -1072,8 +1074,8 @@ class RequestHandler(object):
 
               def get_current_user(self):
                   user_cookie = self.get_secure_cookie("user")
-                  if user_cookie:
-                      return json.loads(user_cookie)
+                      if user_cookie:
+                          return json.loads(user_cookie)
                   return None
 
         * It may be set as a normal variable, typically from an overridden
@@ -2713,8 +2715,7 @@ class GZipContentEncoding(OutputTransform):
     # beginning with "text/").
     CONTENT_TYPES = set(["application/javascript", "application/x-javascript",
                          "application/xml", "application/atom+xml",
-                         "application/json", "application/xhtml+xml",
-                         "image/svg+xml"])
+                         "application/json", "application/xhtml+xml"])
     # Python's GzipFile defaults to level 9, while most other gzip
     # tools (including gzip itself) default to 6, which is probably a
     # better CPU/size tradeoff.
@@ -2967,11 +2968,9 @@ class URLSpec(object):
     def __init__(self, pattern, handler, kwargs=None, name=None):
         """Parameters:
 
-        * ``pattern``: Regular expression to be matched. Any capturing
-          groups in the regex will be passed in to the handler's
-          get/post/etc methods as arguments (by keyword if named, by
-          position if unnamed. Named and unnamed capturing groups may
-          may not be mixed in the same rule).
+        * ``pattern``: Regular expression to be matched.  Any groups
+          in the regex will be passed in to the handler's get/post/etc
+          methods as arguments.
 
         * ``handler``: `RequestHandler` subclass to be invoked.
 
@@ -2980,7 +2979,6 @@ class URLSpec(object):
 
         * ``name`` (optional): A name for this handler.  Used by
           `Application.reverse_url`.
-
         """
         if not pattern.endswith('$'):
             pattern += '$'
@@ -3028,11 +3026,7 @@ class URLSpec(object):
                 if paren_loc >= 0:
                     pieces.append('%s' + fragment[paren_loc + 1:])
             else:
-                try:
-                    unescaped_fragment = re_unescape(fragment)
-                except ValueError as exc:
-                    raise ValueError(exc.args[0] + '; invalid url: %r' % pattern)
-                pieces.append(unescaped_fragment)
+                pieces.append(fragment)
 
         return (''.join(pieces), self.regex.groups)
 

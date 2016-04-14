@@ -94,14 +94,11 @@ Syntax Reference
 Template expressions are surrounded by double curly braces: ``{{ ... }}``.
 The contents may be any python expression, which will be escaped according
 to the current autoescape setting and inserted into the output.  Other
-template directives use ``{% %}``.
+template directives use ``{% %}``.  These tags may be escaped as ``{{!``
+and ``{%!`` if you need to include a literal ``{{`` or ``{%`` in the output.
 
 To comment out a section so that it is omitted from the output, surround it
 with ``{# ... #}``.
-
-These tags may be escaped as ``{{!``, ``{%!``, and ``{#!``
-if you need to include a literal ``{{``, ``{%``, or ``{#`` in the output.
-
 
 ``{% apply *function* %}...{% end %}``
     Applies a function to the output of all template code between ``apply``
@@ -668,7 +665,7 @@ class ParseError(Exception):
     .. versionchanged:: 4.3
        Added ``filename`` and ``lineno`` attributes.
     """
-    def __init__(self, message, filename=None, lineno=0):
+    def __init__(self, message, filename, lineno):
         self.message = message
         # The names "filename" and "lineno" are chosen for consistency
         # with python SyntaxError.

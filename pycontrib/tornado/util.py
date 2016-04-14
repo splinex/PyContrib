@@ -14,32 +14,21 @@ from __future__ import absolute_import, division, print_function, with_statement
 
 import array
 import os
-import re
 import sys
 import zlib
 
-PY3 = sys.version_info >= (3,)
 
-if PY3:
-    xrange = range
+try:
+    xrange  # py2
+except NameError:
+    xrange = range  # py3
 
 # inspect.getargspec() raises DeprecationWarnings in Python 3.5.
 # The two functions have compatible interfaces for the parts we need.
-if PY3:
-    from inspect import getfullargspec as getargspec
-else:
-    from inspect import getargspec
-
-# Aliases for types that are spelled differently in different Python
-# versions. bytes_type is deprecated and no longer used in Tornado
-# itself but is left in case anyone outside Tornado is using it.
-unicode_type = type(u'')
-bytes_type = bytes
-if PY3:
-    basestring_type = str
-else:
-    # The name basestring doesn't exist in py3 so silence flake8.
-    basestring_type = basestring  # noqa
+try:
+    from inspect import getfullargspec as getargspec  # py3
+except ImportError:
+    from inspect import getargspec  # py2
 
 
 class ObjectDict(dict):
@@ -95,6 +84,25 @@ class GzipDecompressor(object):
         return self.decompressobj.flush()
 
 
+# Fake unicode literal support:  Python 3.2 doesn't have the u'' marker for
+# literal strings, and alternative solutions like "from __future__ import
+# unicode_literals" have other problems (see PEP 414).  u() can be applied
+# to ascii strings that include \u escapes (but they must not contain
+# literal non-ascii characters).
+if not isinstance(b'', type('')):
+    def u(s):
+        return s
+    unicode_type = str
+    basestring_type = str
+else:
+    def u(s):
+        return s.decode('unicode_escape')
+    # These names don't exist in py3, so use noqa comments to disable
+    # warnings in flake8.
+    unicode_type = unicode  # noqa
+    basestring_type = basestring  # noqa
+
+
 def import_object(name):
     """Imports an object by name.
 
@@ -127,16 +135,11 @@ def import_object(name):
         raise ImportError("No module named %s" % parts[-1])
 
 
-# Stubs to make mypy happy (and later for actual type-checking).
-def raise_exc_info(exc_info):
-    pass
+# Deprecated alias that was used before we dropped py25 support.
+# Left here in case anyone outside Tornado is using it.
+bytes_type = bytes
 
-
-def exec_in(code, glob, loc=None):
-    pass
-
-
-if PY3:
+if sys.version_info > (3,):
     exec("""
 def raise_exc_info(exc_info):
     raise exc_info[1].with_traceback(exc_info[2])
@@ -178,31 +181,6 @@ def errno_from_exception(e):
         return None
 
 
-_alphanum = frozenset(
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-
-
-def _re_unescape_replacement(match):
-    group = match.group(1)
-    if group[0] in _alphanum:
-        raise ValueError("cannot unescape '\\\\%s'" % group[0])
-    return group
-
-_re_unescape_pattern = re.compile(r'\\(.)', re.DOTALL)
-
-
-def re_unescape(s):
-    """Unescape a string escaped by `re.escape`.
-
-    May raise ``ValueError`` for regular expressions which could not
-    have been produced by `re.escape` (for example, strings containing
-    ``\d`` cannot be unescaped).
-
-    .. versionadded:: 4.4
-    """
-    return _re_unescape_pattern.sub(_re_unescape_replacement, s)
-
-
 class Configurable(object):
     """Base class for configurable interfaces.
 
@@ -223,8 +201,8 @@ class Configurable(object):
     `configurable_base` and `configurable_default`, and use the instance
     method `initialize` instead of ``__init__``.
     """
-    __impl_class = None  # type: type
-    __impl_kwargs = None  # type: dict
+    __impl_class = None
+    __impl_kwargs = None
 
     def __new__(cls, *args, **kwargs):
         base = cls.configurable_base()

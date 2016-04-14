@@ -88,7 +88,7 @@ from tornado.concurrent import Future, TracebackFuture, is_future, chain_future
 from tornado.ioloop import IOLoop
 from tornado.log import app_log
 from tornado import stack_context
-from tornado.util import PY3, raise_exc_info
+from tornado.util import raise_exc_info
 
 try:
     try:
@@ -124,9 +124,9 @@ except ImportError:
     def isawaitable(x):
         return False
 
-if PY3:
-    import builtins
-else:
+try:
+    import builtins  # py3
+except ImportError:
     import __builtin__ as builtins
 
 

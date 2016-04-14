@@ -41,12 +41,6 @@ either::
     # or
     tornado.options.parse_config_file("/etc/server.conf")
 
-.. note:
-
-   When using tornado.options.parse_command_line or 
-   tornado.options.parse_config_file, the only options that are set are 
-   ones that were previously defined with tornado.options.define.
-
 Command line formats are what you would expect (``--myoption=myvalue``).
 Config files are just Python files. Global names become options, e.g.::
 
@@ -138,10 +132,8 @@ class OptionParser(object):
         return name in self._options
 
     def __getitem__(self, name):
-        return self.__getattr__(name)
-
-    def __setitem__(self, name, value):
-        return self.__setattr__(name, value)
+        name = self._normalize_name(name)
+        return self._options[name].value()
 
     def items(self):
         """A sequence of (name, value) pairs.

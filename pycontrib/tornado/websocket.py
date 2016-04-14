@@ -16,7 +16,8 @@ the protocol (known as "draft 76") and are not compatible with this module.
    Removed support for the draft 76 protocol version.
 """
 
-from __future__ import absolute_import, division, print_function, with_statement
+from __future__ import (absolute_import, division,
+                        print_function, with_statement)
 # Author: Jacob Kristhammar, 2010
 
 import base64
@@ -128,7 +129,8 @@ class WebSocketHandler(tornado.web.RequestHandler):
     to accept it before the websocket connection will succeed.
     """
     def __init__(self, application, request, **kwargs):
-        super(WebSocketHandler, self).__init__(application, request, **kwargs)
+        tornado.web.RequestHandler.__init__(self, application, request,
+                                            **kwargs)
         self.ws_connection = None
         self.close_code = None
         self.close_reason = None

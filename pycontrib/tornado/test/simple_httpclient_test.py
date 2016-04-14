@@ -17,7 +17,6 @@ from tornado.httpclient import AsyncHTTPClient
 from tornado.httputil import HTTPHeaders, ResponseStartLine
 from tornado.ioloop import IOLoop
 from tornado.log import gen_log
-from tornado.concurrent import Future
 from tornado.netutil import Resolver, bind_sockets
 from tornado.simple_httpclient import SimpleAsyncHTTPClient
 from tornado.test.httpclient_test import ChunkHandler, CountdownHandler, HelloWorldHandler, RedirectHandler
@@ -239,24 +238,6 @@ class SimpleHTTPClientTestMixin(object):
             self.assertEqual("POST", response.request.method)
 
     @skipOnTravis
-    def test_connect_timeout(self):
-        timeout = 0.1
-        timeout_min, timeout_max = 0.099, 1.0
-
-        class TimeoutResolver(Resolver):
-            def resolve(self, *args, **kwargs):
-                return Future()  # never completes
-
-        with closing(self.create_client(resolver=TimeoutResolver())) as client:
-            client.fetch(self.get_url('/hello'), self.stop,
-                         connect_timeout=timeout)
-            response = self.wait()
-            self.assertEqual(response.code, 599)
-            self.assertTrue(timeout_min < response.request_time < timeout_max,
-                            response.request_time)
-            self.assertEqual(str(response.error), "HTTP 599: Timeout while connecting")
-
-    @skipOnTravis
     def test_request_timeout(self):
         timeout = 0.1
         timeout_min, timeout_max = 0.099, 0.15
@@ -268,7 +249,7 @@ class SimpleHTTPClientTestMixin(object):
         self.assertEqual(response.code, 599)
         self.assertTrue(timeout_min < response.request_time < timeout_max,
                         response.request_time)
-        self.assertEqual(str(response.error), "HTTP 599: Timeout during request")
+        self.assertEqual(str(response.error), "HTTP 599: Timeout")
         # trigger the hanging request to let it clean up after itself
         self.triggers.popleft()()
 
@@ -376,7 +357,7 @@ class SimpleHTTPClientTestMixin(object):
 
             self.assertEqual(response.code, 599)
             self.assertTrue(response.request_time < 1, response.request_time)
-            self.assertEqual(str(response.error), "HTTP 599: Timeout in request queue")
+            self.assertEqual(str(response.error), "HTTP 599: Timeout")
             self.triggers.popleft()()
             self.wait()
 

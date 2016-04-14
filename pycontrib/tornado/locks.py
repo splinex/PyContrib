@@ -465,7 +465,7 @@ class Lock(object):
     ...
     ...    # Now the lock is released.
 
-    .. versionchanged:: 4.3
+    .. versionchanged:: 3.5
        Added ``async with`` support in Python 3.5.
 
     """

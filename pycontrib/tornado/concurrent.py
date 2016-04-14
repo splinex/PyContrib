@@ -38,11 +38,6 @@ try:
 except ImportError:
     futures = None
 
-try:
-    import typing
-except ImportError:
-    typing = None
-
 
 # Can the garbage collector handle cycles that include __del__ methods?
 # This is true in cpython beginning with version 3.4 (PEP 442).
@@ -343,7 +338,7 @@ class Future(object):
 TracebackFuture = Future
 
 if futures is None:
-    FUTURES = Future  # type: typing.Union[type, typing.Tuple[type, ...]]
+    FUTURES = Future
 else:
     FUTURES = (futures.Future, Future)
 

@@ -47,13 +47,8 @@ try:
 except ImportError:
     pass
 try:
-    # monotonic can provide a monotonic function in versions of python before
-    # 3.3, too.
-    from monotonic import monotonic as monotonic_time
+    from time import monotonic as monotonic_time
 except ImportError:
-    try:
-        from time import monotonic as monotonic_time
-    except ImportError:
-        monotonic_time = None
+    monotonic_time = None
 
 __all__ = ['Waker', 'set_close_exec', 'monotonic_time']

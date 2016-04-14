@@ -221,7 +221,6 @@ class CurlAsyncHTTPClient(AsyncHTTPClient):
                         # _process_queue() is called from
                         # _finish_pending_requests the exceptions have
                         # nowhere to go.
-                        self._free_list.append(curl)
                         callback(HTTPResponse(
                             request=request,
                             code=599,
@@ -462,7 +461,7 @@ class CurlAsyncHTTPClient(AsyncHTTPClient):
             request.prepare_curl_callback(curl)
 
     def _curl_header_callback(self, headers, header_callback, header_line):
-        header_line = native_str(header_line.decode('latin1'))
+        header_line = native_str(header_line)
         if header_callback is not None:
             self.io_loop.add_callback(header_callback, header_line)
         # header_line as returned by curl includes the end-of-line characters.

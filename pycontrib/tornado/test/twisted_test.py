@@ -686,7 +686,7 @@ if have_twisted:
     except ImportError:
         pass
     else:
-        globalLogBeginner.beginLoggingTo([], redirectStandardIO=False)
+        globalLogBeginner.beginLoggingTo([])
 
 if have_twisted:
     class LayeredTwistedIOLoop(TwistedIOLoop):
