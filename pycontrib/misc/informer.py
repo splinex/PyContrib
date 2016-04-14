@@ -1,4 +1,5 @@
-import smtplib, logging, sys
+import smtplib
+import logging
 
 class Mailer(object):
     _smtpServer = None
@@ -63,14 +64,20 @@ class Informer(object):
     
     @classmethod
     def initEnv(cls, env):
-        if env.log == '/dev/stdout':
-            kwargs = dict(stream=sys.stdout)
+        Informer.log = logging.getLogger(env.name)
+        Informer.log.propagate = False
+        Informer.log.setLevel(logging.INFO if env.debug else logging.ERROR)
+        
+        if env.log == 'syslog':
+            handler = logging.handlers.SysLogHandler('/dev/log')
+        elif env.log == '/dev/stdout':
+            handler = logging.StreamHandler()
         else:
-            kwargs = dict(filename=env.log)
-            
-        logging.basicConfig(level=(logging.INFO if env.debug else logging.ERROR),
-                            format='{0}:{1}:%(levelname)s:%(asctime)s: %(message)s'.format(env.name, env.port),
-                            **kwargs)
+            handler = logging.FileHandler(env.log)
+                    
+        formatter = logging.Formatter('%(name)s[{0}] %(levelname)s: %(message)s'.format(env.port))
+        handler.setFormatter(formatter)
+        Informer.log.addHandler(handler)
         
         if 'MAILING' in env.config and env.config['MAILING']['enabled'] == 'True':
             Mailer.initCredentials(env.name, env.config['MAILING']['smtpserver'], env.config['MAILING']['fromaddr'],
@@ -78,16 +85,16 @@ class Informer(object):
     
     @classmethod
     def error(cls, msg):
-        logging.error(msg)
+        Informer.log.error(msg)
         Mailer.send(msg)
         
     @classmethod
     def warning(cls, msg):
-        logging.warning(msg)
+        Informer.log.warning(msg)
         
     @classmethod
     def info(cls, msg):
-        logging.info(msg)
+        Informer.log.info(msg)
         
     @classmethod
     def mail(cls, msg):
