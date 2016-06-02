@@ -14,9 +14,9 @@ class Environment(Singleton):
     '''
     Environment configuration
     '''
-    def initialize(self, config_file=None):
+    def initialize(self, config_file=None, config_data=None):
         
-        if not config_file:
+        if not (config_file or config_data):
             argparser = argparse.ArgumentParser()
             argparser.add_argument("--config", help="configuration file - required")
             argparser.add_argument("--port", help="binding port")
@@ -34,7 +34,11 @@ class Environment(Singleton):
             
         config = configparser.ConfigParser()
         config.optionxform = str
-        config.read(config_file)
+        
+        if config_file:
+            config.read(config_file)
+        else:
+            config.read_string(config_data)
 
         if not args is None:
             if args.port:
