@@ -1,13 +1,12 @@
 from setuptools import setup
 
-setup(name = 'pycontrib',
-      version = '1.0',
-      install_requires = ['psutil',
+setup(name='pycontrib',
+      version='1.0',
+      install_requires=['psutil',
                           'tornado>=4.3'],
-      packages = ['pycontrib', 
-                  'pycontrib.service', 
-                  'pycontrib.misc', 
-                  'pycontrib.tornado',
-                  'pycontrib.tornado.platform',
+      packages=['pycontrib',
+                  'pycontrib.service',
+                  'pycontrib.misc',
+                  'pycontrib.os'
                   ],
       )
