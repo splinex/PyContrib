@@ -3,48 +3,51 @@ Created on Jun 18, 2015
 
 @author: maxim
 '''
-import logging
 import argparse
 import configparser
+import logging
 
 from pycontrib.misc.informer import Informer
 from pycontrib.misc.patterns import Singleton
+
 
 class Environment(Singleton):
     '''
     Environment configuration
     '''
     def initialize(self, config_file=None, config_data=None):
-        
+
         if not (config_file or config_data):
             argparser = argparse.ArgumentParser()
             argparser.add_argument("--config", help="configuration file - required")
             argparser.add_argument("--port", help="binding port")
             argparser.add_argument("--debug", help="debug mode")
-    
+            argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
+
             args = argparser.parse_args()
-    
+
             if not args.config:
                 raise Exception('Use --help for args')
-            
+
             config_file = args.config
         else:
             args = None
         self.configFn = config_file
-            
+
         config = configparser.ConfigParser()
         config.optionxform = str
-        
+
         if config_file:
             config.read(config_file)
         else:
             config.read_string(config_data)
 
-        if not args is None:
+        if args is not None:
             if args.port:
                 config['NETWORK']['port'] = args.port
             if args.debug:
                 config['GENERAL']['debug'] = 'True'
+            self.daemon = args.daemon
 
         if 'LOGIN' in config:
             cl = config['LOGIN']
