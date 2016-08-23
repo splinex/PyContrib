@@ -25,7 +25,7 @@ class Singleton(object):
     @classmethod
     def initialized(cls):
         return cls._inited
-    
+
     @classmethod
     def reset_state(cls):
         cls._instance = None
@@ -42,7 +42,7 @@ class lazyproperty(object):
 
     def __init__(self, func):
         self._func = func
-    
+
     def __get__(self, instance, owner=None):
         if instance is None:
             return self
@@ -58,6 +58,6 @@ class ReadOnly(object):
             self.__dict__[name] = value
         else:
             raise ValueError(u'cannot change a const attribute')
-    
+
     def __delattr__(self, name):
         raise ValueError(u'cannot delete a const attribute')

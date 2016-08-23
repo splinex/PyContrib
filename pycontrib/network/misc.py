@@ -19,17 +19,17 @@ class NetworkRecorder(object):
         self._chunk_rotator()
         self.chunk_rotator = PeriodicCallback(self._chunk_rotator, self.chunkPeriod * 1000)
         self.chunk_rotator.start()
-    
+
     def _chunk_rotator(self):
         if self.writeBuffer:
             self.writeBuffer.close()
         dateFormat = '{0}-{1}-%Y%m%d-%H%M'.format(self.host, self.port)
         if self.chunkPeriod < 60:
-            dateFormat += '%S'                    
+            dateFormat += '%S'
         self.chunkFn = '{0}/{1}.ts'.format(self.storePath, datetime.now().strftime(dateFormat))
         self.writeBuffer = open(self.chunkFn, 'wb+', buffering=self.bufferSize)
-        Informer.info('Write to {0}'.format(self.chunkFn))        
-    
+        Informer.info('Write to {0}'.format(self.chunkFn))
+
     def on_chunk(self, chunk):
         recvd = len(chunk)
         if recvd == 0:

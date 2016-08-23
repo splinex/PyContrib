@@ -12,7 +12,7 @@ while true
 do
 	screen -X -S $1 quit
 	sleep 5
-	screen -d -m -S proxy python3 $2 --config $3
+	screen -d -m -S $1 python3 $2 --config $3
 	inotifywait -e modify $3
 done
 

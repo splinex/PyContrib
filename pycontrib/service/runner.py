@@ -21,18 +21,18 @@ class Runner(object):
         self.stdout = stdout
         self.restart_timeout, self.check_timeout = restart_timeout, check_timeout
         HttpMonitor.addCallback(self.getState)
-        
+
     def runned(self):
         if self.proc == None:
-            return False 
+            return False
         return self.proc.returncode == None
-    
+
     def genCmd(self):
         raise NotImplementedError('To be implemented')
-    
+
     def needRestart(self):
         raise NotImplementedError('To be implemented')
-    
+
     def getState(self):
         state = dict(cmd=self.genCmd(), runned=self.runned(), up_time=(int(time.time() - self.runTime) if self.runTime else None), issues=[])
         if not state['runned']:
@@ -40,11 +40,11 @@ class Runner(object):
         elif state['up_time'] < 120:
             state['issues'].append('Short run time')
         return state
-    
+
     @asyncio.coroutine
-    def start(self):                 
+    def start(self):
         while 1:
-            cmd = self.genCmd()                
+            cmd = self.genCmd()
             cmds = cmd.split()
             if self.runned():
                 self.stop()
@@ -56,16 +56,16 @@ class Runner(object):
                 yield from asyncio.sleep(self.check_timeout)
                 if self.needRestart():
                     Informer.error('Need to restart')
-                    break      
-    
+                    break
+
     def stop(self):
         if self.runned():
             self.proc.kill()
-    
+
     def restart(self):
         self.stop()
         self.start()
-        
+
 class SimpleRunner(Runner):
     def __init__(self, cmd, logFn=None, outputFn=None, timeout=40):
         if logFn:
@@ -75,18 +75,18 @@ class SimpleRunner(Runner):
         Runner.__init__(self, stdout)
         self.cmd, self.outputFn, self.timeout, self.logFn = cmd, outputFn, timeout, logFn
         self.targetMDate = 0
-        
+
     def genCmd(self):
         if not self.cmd:
             raise NotImplementedError('To be implemented')
         return self.cmd
-    
+
     def needRestart(self):
         if psutil.virtual_memory().percent > 90:
             Informer.info('Going to restart due to RAM usage')
             Informer.error('Restart due to low mem:\n\n' + json.dumps(list(map(lambda p: (p.name(), p.memory_percent()), psutil.process_iter())), indent=2))
             return True
-        
+
         if not self.outputFn:
             return False
         if self.targetMDate == 0:
@@ -96,9 +96,9 @@ class SimpleRunner(Runner):
         restart = (time.time() - self.targetMDate > self.timeout)
         if restart:
             self.targetMDate = 0
-            
+
         return restart
-    
+
     def getState(self):
         state = Runner.getState(self)
         if self.logFn:
@@ -107,28 +107,28 @@ class SimpleRunner(Runner):
             except Exception as e:
                 state['log'] = repr(e)
         return state
-    
+
 class HlsRunner(SimpleRunner):
-    
+
     def __init__(self, *args):
         SimpleRunner.__init__(self, *args)
         self.mediaSequence = 0
         self.needRestart()
-    
+
     def needRestart(self):
         need = SimpleRunner.needRestart(self)
         if not os.path.exists(self.outputFn):
             self.m3u8Data = None
             return need
-        
+
         r = open(self.outputFn, 'rt')
         self.m3u8Data = r.read()
         r.close()
-        
+
         indexes = re.findall('#EXT-X-MEDIA-SEQUENCE:(\d+)', self.m3u8Data)
         if len(indexes):
             self.mediaSequence = int(indexes[0])
-        
+
         i = self.m3u8Data.find('#EXT-X-ENDLIST')
         if i != -1:
             Informer.info('Trancating #EXT-X-ENDLIST')
@@ -136,9 +136,9 @@ class HlsRunner(SimpleRunner):
             w = open(self.outputFn, 'wt')
             w.write(self.m3u8Data)
             w.close()
-            
+
         return need
-    
+
     def getState(self):
         state = SimpleRunner.getState(self)
         state['misc'] = self.m3u8Data
