@@ -1,4 +1,5 @@
 import logging
+import logging.handlers
 import smtplib
 
 class Mailer(object):
