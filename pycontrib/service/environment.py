@@ -15,7 +15,7 @@ class Environment(Singleton):
     '''
     Environment configuration
     '''
-    def initialize(self, config_file=None, config_data=None):
+    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False):
 
         if not (config_file or config_data):
             argparser = argparse.ArgumentParser()
@@ -68,6 +68,6 @@ class Environment(Singleton):
 
         self.config = config
 
-        Informer.initEnv(self)
+        Informer.initEnv(self, redefine_tornado_logging=redefine_tornado_logging)
 
         Informer.info('{0} started at {1}:{2}'.format(self.name, self.host, self.port))
