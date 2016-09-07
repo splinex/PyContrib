@@ -6,9 +6,10 @@ setup(name='pycontrib',
                         'tornado>=4.3',
                         'motor>=0.6'],
       packages=['pycontrib',
-                  'pycontrib.service',
-                  'pycontrib.misc',
-                  'pycontrib.os',
-                  'pycontrib.monguo'
-                  ],
+                'pycontrib.service',
+                'pycontrib.misc',
+                'pycontrib.os',
+                'pycontrib.monguo',
+                'pycontrib.async'
+                ],
       )
