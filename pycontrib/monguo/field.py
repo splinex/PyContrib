@@ -11,7 +11,7 @@ import inspect
 import sys
 import os
 import imp
-#import cPickle as pickle
+# import cPickle as pickle
 
 from datetime import datetime, date, time
 from bson.dbref import DBRef
@@ -20,15 +20,15 @@ from bson.objectid import ObjectId
 from .error import *
 
 __all__ = ['Field', 'StringField', 'IntegerField', 'BooleanField',
-           'FloatField', 'EmbeddedDocumentField', 'GenericDictField', 
+           'FloatField', 'EmbeddedDocumentField', 'GenericDictField',
            'DictField', 'GenericListField', 'ListField', 'EmailField',
-           'ReferenceField', 'ObjectIdField', 'GridFileField', 'DateTimeField', 
+           'ReferenceField', 'ObjectIdField', 'GridFileField', 'DateTimeField',
            'DateField', 'TimeField', 'BinaryField', 'LocationField']
 
 class Field(object):
     '''Base field class.'''
 
-    def __init__(self, required=False, default=None, unique=False, 
+    def __init__(self, required=False, default=None, unique=False,
                  candidate=None, strict=False):
         '''
         :Parameters:
@@ -61,7 +61,7 @@ class Field(object):
                 self.candidate[index] = self.check_type(item)
 
             if self.default is not None and self.default not in self.candidate:
-                raise ValueError("default value '%s' isn't in candidate %s" % 
+                raise ValueError("default value '%s' isn't in candidate %s" %
                     (self.default, self.candidate))
 
     @property
@@ -132,7 +132,7 @@ class StringField(Field):
         if self.min_length is not None and len(value) < self.min_length:
             raise ValidateError("String value is too short.")
 
-        if self.max_length is not None and len(value) > self.max_length: 
+        if self.max_length is not None and len(value) > self.max_length:
             raise ValidateError("String value is too long.")
 
         if self.regex is not None and re.match(self.regex, value) is None:
@@ -179,7 +179,7 @@ class IntegerField(Field):
 
         if self.max_value is not None and value > self.max_value:
             raise ValidateError(
-                "'%s' is larger than %s." % (self.value, self.max_value ))
+                "'%s' is larger than %s." % (self.value, self.max_value))
         return value
 
 
@@ -193,7 +193,7 @@ class FloatField(Field):
           - `max_value(optional)`: The max value of the field.
         '''
         super(FloatField, self).__init__(**kwargs)
-        
+
         if min_value is not None and not isinstance(min_value, (int, float)):
             raise TypeError("Argument 'min_value' should be number.")
 
@@ -206,7 +206,7 @@ class FloatField(Field):
     def check_type(self, value):
         if self.strict and not isinstance(value, float):
             raise TypeError("'%s' is not float type." % value)
-        
+
         try:
             value = float(value)
         except:
@@ -221,8 +221,8 @@ class FloatField(Field):
             raise ValidateError("'%s' is smaller than '%s'." % (value, self.min_value))
 
         if self.max_value is not None and value > self.max_value:
-            raise ValidateError("'%s' is larger than '%s'." % (self.value, self.max_value ))
-            
+            raise ValidateError("'%s' is larger than '%s'." % (self.value, self.max_value))
+
         return value
 
 
@@ -249,7 +249,7 @@ class EmailField(StringField):
         r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"
         r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"'
         r")@((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$)"
-        r'|\[(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}\]$', re.IGNORECASE )
+        r'|\[(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}\]$', re.IGNORECASE)
 
     def validate(self, value):
         value = super(EmailField, self).validate(value)
@@ -315,7 +315,7 @@ class GenericListField(Field):
         if self.strict and not isinstance(value, (list, tuple)):
             raise TypeError("'%s' isn't list or tuple typr.")
         try:
-            value = list(value)            
+            value = list(value)
         except:
             raise ValidateError("Can't convert '%s' to list" % value)
         return value
@@ -335,8 +335,8 @@ class ListField(GenericListField):
         self.field = field
         self.field.in_list = True
         super(ListField, self).__init__(**kwargs)
-    
-    def validate(self, value): 
+
+    def validate(self, value):
         value = super(ListField, self).validate(value)
         for index, item in enumerate(value[::]):
             value[index] = self.field.validate(item)
@@ -368,7 +368,7 @@ class ReferenceField(Field):
                 if _[1] is not None:
                     name = inspect.getmodulename(_[1])
                     _ = imp.find_module(name, [os.path.dirname(_[1])])
-                    fp, _ = _[0], _[1:] 
+                    fp, _ = _[0], _[1:]
                     try:
                         module = imp.load_module(name, fp, *_)
                         result = getattr(module, reference)
@@ -378,7 +378,7 @@ class ReferenceField(Field):
                     finally:
                         if fp:
                             fp.close()
-                    
+
         elif issubclass(reference, Document):
             result = reference
 
@@ -398,7 +398,7 @@ class ReferenceField(Field):
         value = super(ReferenceField, self).validate(value)
 
         if self.reference is not None:
-            if (value.database is not None and 
+            if (value.database is not None and
                     self.reference.get_database_name() != value.database):
                 raise ValidateError(
                     "Database is different betwwen '%s' and '%s'" % (
@@ -425,14 +425,14 @@ class ObjectIdField(Field):
 
         return value
 
-    def validate(self, value): 
+    def validate(self, value):
         value = super(ObjectIdField, self).validate(value)
         return value
 
 
 class GridFileField(ObjectIdField):
     '''An GridFileField field.'''
-    
+
     pass
 
 

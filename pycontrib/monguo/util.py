@@ -10,9 +10,9 @@ import re
 def camel_to_underline(camel):
     if not isinstance(camel, str):
         raise TypeError('camel should be string type!')
-        
-    return ''.join([''.join(('_', item.lower())) 
-           if item.isupper() and index else item.lower() 
+
+    return ''.join([''.join(('_', item.lower()))
+           if item.isupper() and index else item.lower()
            for index, item in enumerate(camel)])
 
 def legal_variable_name(name):

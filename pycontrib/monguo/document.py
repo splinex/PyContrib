@@ -53,7 +53,7 @@ class MonguoOperation(object):
             return motor_method(*args, **kwargs)
 
         return method
-    
+
 class MonguoMeta(type):
     '''Meta class of Document.'''
 
@@ -73,7 +73,7 @@ class MonguoMeta(type):
                 elif isinstance(attr, types.FunctionType):
                     new_attr = staticmethod(attr)
                     setattr(new_class, name, new_attr)
-        
+
         return new_class
 
 
@@ -111,12 +111,12 @@ class BaseDocument(object):
                 raise UndefinedFieldError(field=name)
 
         for name, attr in list(fields_dict.items()):
-            if (attr.required and name not in document 
+            if (attr.required and name not in document
                     and attr.default is None):
                 raise RequiredError(field=name)
 
             value = None
-            if (attr.required and name not in document 
+            if (attr.required and name not in document
                     and attr.default is not None):
                 value = attr.default
 
@@ -132,49 +132,49 @@ class BaseDocument(object):
 
         return _document
 
-   
+
 class EmbeddedDocument(BaseDocument):
     '''The embedded document, not support query operations.'''
-    pass  
+    pass
 
 
 class Document(BaseDocument, metaclass=MonguoMeta):
     '''
     The ORM core, supports `all the query operations of motor 
     <http://motor.readthedocs.org/en/stable/api/motor_collection.html>`_.'''
-    meta              = {}
-    
-    create_index      = MonguoOperation()
-    drop_indexes      = MonguoOperation()
-    drop_index        = MonguoOperation()
-    drop              = MonguoOperation()
-    ensure_index      = MonguoOperation()
-    reindex           = MonguoOperation()
-    rename            = MonguoOperation()
-    find_and_modify   = MonguoOperation()
-    map_reduce        = MonguoOperation()
-    update            = MonguoOperation()
-    insert            = MonguoOperation()
-    remove            = MonguoOperation()
-    save              = MonguoOperation()
-    index_information = MonguoOperation()
-    count             = MonguoOperation()
-    options           = MonguoOperation()
-    group             = MonguoOperation()
-    distinct          = MonguoOperation()
-    inline_map_reduce = MonguoOperation()
-    find_one          = MonguoOperation()
-    find              = MonguoOperation()
-    aggregate         = MonguoOperation()
-    uuid_subtype      = MonguoOperation()
-    full_name         = MonguoOperation()
+    meta = {}
 
-    
+    create_index = MonguoOperation()
+    drop_indexes = MonguoOperation()
+    drop_index = MonguoOperation()
+    drop = MonguoOperation()
+    ensure_index = MonguoOperation()
+    reindex = MonguoOperation()
+    rename = MonguoOperation()
+    find_and_modify = MonguoOperation()
+    map_reduce = MonguoOperation()
+    update = MonguoOperation()
+    insert = MonguoOperation()
+    remove = MonguoOperation()
+    save = MonguoOperation()
+    index_information = MonguoOperation()
+    count = MonguoOperation()
+    options = MonguoOperation()
+    group = MonguoOperation()
+    distinct = MonguoOperation()
+    inline_map_reduce = MonguoOperation()
+    find_one = MonguoOperation()
+    find = MonguoOperation()
+    aggregate = MonguoOperation()
+    uuid_subtype = MonguoOperation()
+    full_name = MonguoOperation()
+
+
     @classmethod
     def get_database_name(cls):
         '''Get the database name related to `cls`.'''
 
-        db_name = (cls.meta['db'] if 'db' in cls.meta else 
+        db_name = (cls.meta['db'] if 'db' in cls.meta else
             Connection.get_default_database_name())
         return db_name
 
@@ -211,11 +211,11 @@ class Document(BaseDocument, metaclass=MonguoMeta):
           - `pymongo`: Return pymongo.collection if True.
         '''
 
-        db= cls.get_database(pymongo)
+        db = cls.get_database(pymongo)
         collection_name = cls.get_collection_name()
         collection = db[collection_name]
         return collection
-    
+
     @classmethod
     @gen.coroutine
     def translate_dbref(cls, dbref):

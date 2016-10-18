@@ -64,7 +64,7 @@ class GObjectIOLoop(tornado.ioloop.IOLoop):
 
     def call_at(self, when, callback, *args, **kwargs):
         interval = (when - self.time()) * 1000
-        return GObject.timeout_add(int(interval), self._handle_call_at(callback), *args, **kwargs)
+        return GObject.timeout_add(interval, self._handle_call_at(callback), *args, **kwargs)
 
     def remove_timeout(self, timeout):
         GObject.source_remove(timeout)

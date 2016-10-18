@@ -84,7 +84,7 @@ class Connection(object):
         if connection_name == cls._default_connection:
             if cls._connections:
                 cls._default_connection = list(cls._connections[0].keys())[0]
-            else:            
+            else:
                 cls._default_connection = None
 
     @classmethod
@@ -105,7 +105,7 @@ class Connection(object):
 
         for connection in cls._connections:
             if connection_name in list(connection.keys()):
-                return connection[connection_name][1 if pymongo else 0]                 
+                return connection[connection_name][1 if pymongo else 0]
         return None
 
     @classmethod
@@ -137,7 +137,7 @@ class Connection(object):
     def get_default_database_name(cls):
         '''Return the name of current database.'''
 
-        if cls._default_db is None:  
+        if cls._default_db is None:
             raise ConnectionError("Haven't set default database.")
 
         return cls._default_db
@@ -166,7 +166,7 @@ class Connection(object):
         '''
         if not isinstance(connection_name, str):
             raise TypeError("Argument 'connection_name' should be str type.")
-            
+
         if connection_name not in cls.get_connection_name_list():
             raise ConnectionError("'%s' hasn't been connected." % connection_name)
 

@@ -5,26 +5,26 @@
 # @Last Modified by:   lime
 # @Last Modified time: 2014-03-09 15:16:46
 
-__all__ = ['ConnectionError', 'AssignmentError', 'RequiredError', 
+__all__ = ['ConnectionError', 'AssignmentError', 'RequiredError',
            'UniqueError', 'CandidateError', 'UndefinedFieldError',
-           'FieldDeleteError', 'FieldRenameError', 'FieldNameError', 
+           'FieldDeleteError', 'FieldRenameError', 'FieldNameError',
            'NotSupportError', 'FieldValueError', 'ValidateError']
 
-ASSIGNMENT_ERROR   = "Variable '%s' cant't be assgined!"
-REQUIRED_MESSAGE   = "Field '%s' required!"
-UNIQUE_ERROR       = "Field '%s' is unique!"
-CANDIDATE_ERROR    = "Field '%s' not in candidate!"
-UNDEFINED_ERROR    = "Undefined field '%s' in document!"
+ASSIGNMENT_ERROR = "Variable '%s' cant't be assgined!"
+REQUIRED_MESSAGE = "Field '%s' required!"
+UNIQUE_ERROR = "Field '%s' is unique!"
+CANDIDATE_ERROR = "Field '%s' not in candidate!"
+UNDEFINED_ERROR = "Undefined field '%s' in document!"
 FIELD_DELETE_ERROR = "Field '%s' is required, you can't delete it!"
 FIELD_RENAME_ERROR = "Field '%s' can't be renamed!"
-FIELD_NAME_ERROR   = "Field name '%s' can't contain character '.' or '$'!"
-NOT_SUPPORT_ERROR  = "Operation %s is not supported."
-FIELD_VALUE_ERROR  = "Value '%s' is not %s."
+FIELD_NAME_ERROR = "Field name '%s' can't contain character '.' or '$'!"
+NOT_SUPPORT_ERROR = "Operation %s is not supported."
+FIELD_VALUE_ERROR = "Value '%s' is not %s."
 
 
 class MonguoBaseError(Exception):
     '''Base Monguo error class.'''
-    
+
     def __init__(self, message=None):
         self.message = message
 
@@ -43,7 +43,7 @@ class ValidateError(MonguoBaseError):
 class NotSupportError(MonguoBaseError):
     def __init__(self, operation):
         self.operation = operation
-    
+
     def __str__(self):
         return repr(NOT_SUPPORT_ERROR % self.operation)
 
@@ -52,7 +52,7 @@ class FieldValueError(MonguoBaseError):
     def __init__(self, value, field):
         self.value = value
         self.field = field
-    
+
     def __str__(self):
         return repr(FIELD_VALUE_ERROR % (self.value, self.field))
 

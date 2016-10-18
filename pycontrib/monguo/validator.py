@@ -46,7 +46,7 @@ class Validator(object):
           - `value`: value to be validated.
         '''
         value = field.validate(value)
-        if (field.unique and not field.in_list 
+        if (field.unique and not field.in_list
                 and util.legal_variable_name(name)):
             count = self.collection.find({name: value}).count()
             if count:
@@ -131,14 +131,14 @@ class Validator(object):
             if not util.legal_variable_name(name_list[0]):
                 raise name_error
 
-            if (name_list.count('$') == 1 and 
+            if (name_list.count('$') == 1 and
                     name_list[name_list.index('$') - 1].isdigit()):
                 raise name_error
 
             return name_list
 
         def pre_deal(operator, value):
-            if operator == '$set': 
+            if operator == '$set':
                 value = {'value': value}
 
             elif operator == '$addToSet':
@@ -256,7 +256,7 @@ class Validator(object):
 
                 if name_list[0] not in fields_dict:
                     raise UndefinedFieldError(field=name_list[0])
-                
+
                 current_attr = fields_dict[name_list[0]]
                 if operator == '$unset':
                     last_name = name_list.pop()
@@ -273,7 +273,7 @@ class Validator(object):
                             if next_name.isdigit():
                                 if isinstance(current_attr, ListField):
                                     current_attr = current_attr.field
-                                elif isinstance(current_attr, 
+                                elif isinstance(current_attr,
                                                 GenericListField):
                                     break
                                 else:
@@ -303,7 +303,7 @@ class Validator(object):
                                         document[operator][original_name]['$each'] = result
                                     else:
                                         document[operator][original_name] = result[0]
-                                else:    
+                                else:
                                     document[operator][original_name] = result
 
                     else:
@@ -341,11 +341,11 @@ class Validator(object):
                                         document[operator][original_name]['$each'] = result
                                     else:
                                         document[operator][original_name] = result[0]
-                                else:    
+                                else:
                                     document[operator][original_name] = result
 
 
-        update_operators = ['$inc', '$name', '$setOnInsert', '$set', '$unset', 
+        update_operators = ['$inc', '$name', '$setOnInsert', '$set', '$unset',
                             '$addToSet', '$pop', '$pullAll', '$pull', '$sort',
                             '$pushAll', '$push', '$each', '$slice', '$bit' ,
                             '$isolated']
@@ -377,7 +377,7 @@ class Validator(object):
                 for name in document['$rename']:
                     raise NotSupportError(field=name)
 
-            new_operators = ['$set', '$inc', '$addToSet', '$pushAll', '$push', 
+            new_operators = ['$set', '$inc', '$addToSet', '$pushAll', '$push',
                              '$bit', '$unset']
 
             for operator in new_operators:
