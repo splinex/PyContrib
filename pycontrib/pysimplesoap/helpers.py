@@ -152,7 +152,7 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
         new_struct = struct is None
         if new_struct:
             struct = Struct()
-            struct.namespaces[None] = namespace   # set the default namespace
+            struct.namespaces[None] = namespace  # set the default namespace
             struct.qualified = qualified
 
         # iterate over the element's components (sub-elements):
@@ -165,7 +165,7 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
             if not t:
                 t = e['base']  # complexContent (extension)!
             if not t:
-                t = e['ref']   # reference to another element
+                t = e['ref']  # reference to another element
             if not t:
                 # "anonymous" elements had no type attribute but children
                 if e['name'] and e.children():
@@ -217,7 +217,7 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
                                 # create an indirect struct {type_name: ...}:
                                 fn_array = Struct(key)
                                 fn_array[type_name] = fn_complex
-                                fn_array.namespaces[None] = fn_namespace   # set the default namespace
+                                fn_array.namespaces[None] = fn_namespace  # set the default namespace
                                 fn_array.qualified = qualified
                             fn.append(fn_array)
             else:
@@ -227,9 +227,9 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
             if not fn:
                 # simple / complex type, postprocess later
                 if ns:
-                    fn_namespace = uri       # use the specified namespace
+                    fn_namespace = uri  # use the specified namespace
                 else:
-                    fn_namespace = namespace # use parent namespace (default)
+                    fn_namespace = namespace  # use parent namespace (default)
                 for k, v in e[:]:
                     if k.startswith("xmlns:"):
                         # get the namespace uri from the element
@@ -245,18 +245,18 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
             if e['maxOccurs'] == 'unbounded' or (uri == soapenc_uri and type_name == 'Array'):
                 # it's an array... TODO: compound arrays? and check ns uri!
                 if isinstance(fn, Struct):
-                    if len(children) > 1 or (dialect in ('jetty', )):
+                    if len(children) > 1 or (dialect in ('jetty',)):
                         # Jetty style support
                         # {'ClassName': [{'attr1': val1, 'attr2': val2}]
-                         
+
 #                         fn.array = True
 #                         struct.array = True
                         pass
                     else:
                         # .NET style now matches Jetty style
                         # {'ClassName': [{'attr1': val1, 'attr2': val2}]
-                        #fn.array = True
-                        #struct.array = True
+                        # fn.array = True
+                        # struct.array = True
                         fn = [fn]
                 else:
                     if len(children) > 1 or dialect in ('jetty',):
@@ -297,11 +297,11 @@ def process_element(elements, element_name, node, element_type, xsd_uri,
 
 def postprocess_element(elements, processed):
     """Fix unresolved references"""
-    #elements variable contains all eelements and complexTypes defined in http://www.w3.org/2001/XMLSchema
+    # elements variable contains all eelements and complexTypes defined in http://www.w3.org/2001/XMLSchema
 
     # (elements referenced before its definition, thanks .net)
     # avoid already processed elements:
-    #if elements in processed:
+    # if elements in processed:
     #    return
     processed.append(elements)
 
@@ -318,19 +318,19 @@ def postprocess_element(elements, processed):
                     # clean the reference:
                     v.refers_to = None
                 else:  # "alias", just replace
-                    ##log.debug('Replacing %s = %s' % (k, v.refers_to))
+                    # #log.debug('Replacing %s = %s' % (k, v.refers_to))
                     elements[k] = v.refers_to
             elif isinstance(v.refers_to, Struct) and not v:
                 while isinstance(elements[k].refers_to, Struct) and not elements[k]:
                     elements[k] = elements[k].refers_to
                 elements[k] = elements[k].refers_to
-                
+
             if v.array:
                 elements[k] = [v]  # convert arrays to python lists
         if isinstance(v, list):
             for n in v:  # recurse list
                 if isinstance(n, (Struct, list)):
-                    #if n != elements:  # TODO: fix recursive elements
+                    # if n != elements:  # TODO: fix recursive elements
                     postprocess_element(n, processed)
 
 def extend_element(element, base):
@@ -358,7 +358,7 @@ def get_message(messages, message_name, part_name, parameter_order=None):
         for (message_name_key, part_name_key), message in messages.items():
             if message_name_key == message_name:
                 parts[part_name_key] = message
-        if len(parts)>1:
+        if len(parts) > 1:
             # merge (sorted by parameter_order for rpc style)
             new_msg = None
             for part_name_key in parameter_order:
@@ -372,7 +372,7 @@ def get_message(messages, message_name, part_name, parameter_order=None):
             return new_msg
         elif parts:
             return list(parts.values())[0]
-            #return parts.values()[0]
+            # return parts.values()[0]
 
 
 
@@ -385,7 +385,7 @@ def preprocess_schema(schema, imported_schemas, elements, xsd_uri, dialect,
                       global_namespaces=None, qualified=False):
     """Find schema elements and complex types"""
 
-    from .simplexml import SimpleXMLElement    # here to avoid recursive imports
+    from .simplexml import SimpleXMLElement  # here to avoid recursive imports
 
     # analyze the namespaces used in this schema
     local_namespaces = {}
@@ -431,8 +431,8 @@ def preprocess_schema(schema, imported_schemas, elements, xsd_uri, dialect,
 
         element_type = element.get_local_name()
         if element_type in ('element', 'complexType', "simpleType"):
-            namespace = local_namespaces[None]          # get targetNamespace
-            element_ns = global_namespaces[ns]          # get the prefix
+            namespace = local_namespaces[None]  # get targetNamespace
+            element_ns = global_namespaces[ns]  # get the prefix
             element_name = element['name']
             log.debug("Parsing Element %s: %s" % (element_type, element_name))
             if element.get_local_name() == 'complexType':
@@ -440,7 +440,7 @@ def preprocess_schema(schema, imported_schemas, elements, xsd_uri, dialect,
             elif element.get_local_name() == 'simpleType':
                 children = element('restriction', ns=xsd_uri, error=False)
                 if not children:
-                    children = element.children()       # xs:list
+                    children = element.children()  # xs:list
             elif element.get_local_name() == 'element' and element['type']:
                 children = element
             else:
@@ -599,9 +599,9 @@ class Struct(dict):
         self.key = key
         self.__keys = []
         self.array = False
-        self.namespaces = {}     # key: element, value: namespace URI
-        self.references = {}     # key: element, value: reference name
-        self.refers_to = None    # "symbolic linked" struct
+        self.namespaces = {}  # key: element, value: namespace URI
+        self.references = {}  # key: element, value: reference name
+        self.refers_to = None  # "symbolic linked" struct
         self.qualified = None
 
     def __setitem__(self, key, value):

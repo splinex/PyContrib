@@ -23,7 +23,7 @@ try:
     import lxml.etree
 except ImportError:
     lxml = None
-    
+
 # Features:
 #  * Uses M2Crypto and lxml (libxml2) but it is independent from libxmlsec1
 #  * Sign, Verify, Encrypt & Decrypt XML documents

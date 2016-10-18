@@ -171,7 +171,7 @@ class SoapDispatcher(object):
             method = request('Body', ns=soap_uri).children()(0)
             if action:
                 # method name = action
-                name = action[len(self.action)+1:-1]
+                name = action[len(self.action) + 1:-1]
                 prefix = self.prefix
             if not action or not name:
                 # method name = input message name
@@ -222,7 +222,7 @@ class SoapDispatcher(object):
             xml = """<%(soap_ns)s:Envelope xmlns:%(soap_ns)s="%(soap_uri)s"
                        xmlns:%(prefix)s="%(namespace)s"/>"""
 
-        xml %= {    # a %= {} is a shortcut for a = a % {}
+        xml %= {  # a %= {} is a shortcut for a = a % {}
             'namespace': self.namespace,
             'prefix': prefix,
             'soap_ns': soap_ns,
@@ -269,7 +269,7 @@ class SoapDispatcher(object):
                                      "%s vs %s" % (str(returns_types), str(ret)))
                 if not complex_type or not types_ok:
                     # backward compatibility for scalar and simple types
-                    res.marshall(list(returns_types.keys())[0], ret, )
+                    res.marshall(list(returns_types.keys())[0], ret,)
                 else:
                     # new style for complex classes
                     for k, v in ret.items():
@@ -426,11 +426,11 @@ class SoapDispatcher(object):
             soapop['soapAction'] = self.action + method
             soapop['style'] = 'document'
             input = op.add_child("wsdl:input")
-            ##input.add_attribute('name', "%sInput" % method)
+            # #input.add_attribute('name', "%sInput" % method)
             soapbody = input.add_child("soap:body")
             soapbody["use"] = "literal"
             output = op.add_child("wsdl:output")
-            ##output.add_attribute('name', "%sOutput" % method)
+            # #output.add_attribute('name', "%sOutput" % method)
             soapbody = output.add_child("soap:body")
             soapbody["use"] = "literal"
 
@@ -608,7 +608,7 @@ if __name__ == "__main__":
         result = response.AddResult
         log.info(int(result.ab))
         log.info(str(result.dd))
-        
+
     if '--consume-wsdl' in sys.argv:
         from .client import SoapClient
         client = SoapClient(

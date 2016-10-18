@@ -209,7 +209,7 @@ class BinaryTokenSignature:
         if not ok:
             raise RuntimeError("WSSE RSA-SHA1 signature verification failed")
         # TODO: remove any unsigned part from the xml?
-        
+
     def __check(self, value, expected, msg="WSSE sanity check failed"):
         if value != expected:
             raise RuntimeError(msg)

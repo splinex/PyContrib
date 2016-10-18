@@ -8,10 +8,10 @@ from pycontrib.service.login import LoginRequestHandler
 from pycontrib.misc.informer import Informer
 
 class HttpTemplateRequestHandler(LoginRequestHandler):
-    
+
     meta = None
     _indext = None
-    
+
     def initialize(self, env):
         LoginRequestHandler.initialize(self)
         self.env = env

@@ -10,7 +10,7 @@ def unfailable_coroutine(func):
         fails = True
         result = None
         while fails:
-            fails = False            
+            fails = False
             try:
                 result = yield func(*args)
             except:

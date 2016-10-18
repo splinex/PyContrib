@@ -96,7 +96,7 @@ def _utilized(n, node, other_attrs, unsuppressedPrefixes):
     elif n.startswith('xmlns'):
         n = n[5:]
     if (n == "" and node.prefix in ["#default", None]) or \
-        n == node.prefix or n in unsuppressedPrefixes: 
+        n == node.prefix or n in unsuppressedPrefixes:
             return 1
     for attr in other_attrs:
         if n == attr.prefix: return 1
@@ -104,7 +104,7 @@ def _utilized(n, node, other_attrs, unsuppressedPrefixes):
     if unsuppressedPrefixes is not None:
         for attr in _attrs(node):
             if n == attr.prefix: return 1
-            
+
     return 0
 
 
@@ -156,10 +156,10 @@ class _implementation:
         self.comments = kw.get('comments', 0)
         self.unsuppressedPrefixes = kw.get('unsuppressedPrefixes')
         nsdict = kw.get('nsdict', { 'xml': XMLNS.XML, 'xmlns': XMLNS.BASE })
-        
+
         # Processing state.
         self.state = (nsdict, {'xml':''}, {}, {})  # 0422
-        
+
         if node.nodeType == Node.DOCUMENT_NODE:
             self._do_document(node)
         elif node.nodeType == Node.ELEMENT_NODE:
@@ -300,14 +300,14 @@ class _implementation:
         #        ns_local -- NS declarations relevant to this element
         #   xml_attrs -- Attributes in XML namespace from parent
         #       xml_attrs_local -- Local attributes in XML namespace.
-        #   ns_unused_inherited -- not rendered namespaces, used for exclusive 
+        #   ns_unused_inherited -- not rendered namespaces, used for exclusive
         ns_parent, ns_rendered, xml_attrs = \
                 self.state[0], self.state[1].copy(), self.state[2].copy()  # 0422
-                
+
         ns_unused_inherited = unused
         if unused is None:
             ns_unused_inherited = self.state[3].copy()
-            
+
         ns_local = ns_parent.copy()
         inclusive = _inclusive(self)
         xml_attrs_local = {}
@@ -326,7 +326,7 @@ class _implementation:
             else:
                 if  _in_subset(self.subset, a):  # 020925 Test to see if attribute node in subset
                     other_attrs.append(a)
-                    
+
 #                # TODO: exclusive, might need to define xmlns:prefix here
 #                if not inclusive and a.prefix is not None and not ns_rendered.has_key('xmlns:%s' %a.prefix):
 #                    ns_local['xmlns:%s' %a.prefix] = ??
@@ -336,23 +336,23 @@ class _implementation:
 
         # Render the node
         W, name = self.write, None
-        if in_subset: 
+        if in_subset:
             name = node.nodeName
             if not inclusive:
                 if node.prefix is not None:
                     prefix = 'xmlns:%s' % node.prefix
                 else:
                     prefix = 'xmlns'
-                    
+
                 if not ns_rendered.has_key(prefix) and not ns_local.has_key(prefix):
                     if not ns_unused_inherited.has_key(prefix):
                         raise RuntimeError(\
                             'For exclusive c14n, unable to map prefix "%s" in %s' % (
                             prefix, node))
-                    
+
                     ns_local[prefix] = ns_unused_inherited[prefix]
                     del ns_unused_inherited[prefix]
-                
+
             W('<')
             W(name)
 
