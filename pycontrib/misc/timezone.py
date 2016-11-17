@@ -402,8 +402,6 @@ class TimezoneConverter(Singleton):
         if iana_timezone not in self.timezone_data:
             return None
         r = self.timezone_data[iana_timezone]
-#         "EST","Eastern Standard Time","EDT","Eastern Daylight Time","-05:00:00","+01:00:00","2;0;3","+02:00:00","1;0;11","+02:00:00"
-#         TZ=EST5EDT,M3.2.0/2,M11.1.0
 
         try:
             if r[5] in ('', '+00:00:00'):
