@@ -15,17 +15,18 @@ class Environment(Singleton):
     '''
     Environment configuration
     '''
-    
+
     def get_argparser(self):
         argparser = argparse.ArgumentParser()
-        argparser.add_argument("--config", help="configuration file - required")
-        argparser.add_argument("--port", help="binding port")
-        argparser.add_argument("--debug", help="debug mode")
-        argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
+        argparser.add_argument('--config', help="configuration file - required")
+        argparser.add_argument('--port', help="binding port")
+        argparser.add_argument('--debug', help="debug mode")
+        argparser.add_argument('--daemon', help="daemon command {start|stop|restart}")
+        argparser.add_argument('--command', help='maintenance command, ex db.clear')
         return argparser
-    
+
     def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False):
-        
+
         self.args = None
 
         if not (config_file or config_data):
@@ -39,7 +40,7 @@ class Environment(Singleton):
         else:
             args = None
         self.configFn = config_file
-        
+
         self.args = args
 
         config = configparser.ConfigParser()
@@ -56,6 +57,7 @@ class Environment(Singleton):
             if args.debug:
                 config['GENERAL']['debug'] = 'True'
             self.daemon = args.daemon
+            self.command = args.command
 
         if 'LOGIN' in config:
             cl = config['LOGIN']

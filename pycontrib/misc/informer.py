@@ -1,6 +1,8 @@
+from copy import deepcopy
 import logging
 import logging.handlers
 import smtplib
+
 
 class Mailer(object):
     _smtpServer = None
@@ -61,6 +63,30 @@ class Mailer(object):
             Mailer._prevMsg = msg
             Mailer.disconnect()
 
+class MultilineFormatter(logging.Formatter):
+    def format(self, record):
+        ret = str()
+        msg_raws = deepcopy(record.getMessage())
+        record.args = ()
+        if record.exc_info:
+            exc_text = self.formatException(record.exc_info)
+            record.exc_info = None
+        else:
+            exc_text = None
+
+        for msg_raw in msg_raws.split('\n'):
+            record.msg = msg_raw
+            ret += super().format(record)
+
+        if exc_text:
+            for exc_raw in exc_text.split('\n'):
+                record.msg = exc_raw
+                if ret:
+                    ret += '\n'
+                ret += super().format(record)
+
+        return ret
+
 class Informer(object):
 
     @classmethod
@@ -77,7 +103,7 @@ class Informer(object):
         else:
             handler = logging.FileHandler(env.log)
 
-        formatter = logging.Formatter('%(name)s[{0}] %(levelname)s: %(message)s'.format(env.port))
+        formatter = MultilineFormatter('{0}[{1}] %(levelname)s: %(message)s'.format(env.name, env.port))
         handler.setFormatter(formatter)
         Informer.log.addHandler(handler)
 
