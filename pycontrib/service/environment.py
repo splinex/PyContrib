@@ -16,21 +16,22 @@ class Environment(Singleton):
     Environment configuration
     '''
 
-    def get_argparser(self):
+    def get_argparser(self, additional_args):
         argparser = argparse.ArgumentParser()
-        argparser.add_argument('--config', help="configuration file - required")
-        argparser.add_argument('--port', help="binding port")
-        argparser.add_argument('--debug', help="debug mode")
-        argparser.add_argument('--daemon', help="daemon command {start|stop|restart}")
-        argparser.add_argument('--command', help='maintenance command, ex db.clear')
+        argparser.add_argument("--config", help="configuration file - required")
+        argparser.add_argument("--port", help="binding port")
+        argparser.add_argument("--debug", help="debug mode")
+        argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
+        for (arg, help) in additional_args:
+            argparser.add_argument("--%s" % arg, help=help)
         return argparser
 
-    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False):
+    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False, required_args=[]):
 
         self.args = None
 
         if not (config_file or config_data):
-            argparser = self.get_argparser()
+            argparser = self.get_argparser(required_args)
             args = argparser.parse_args()
 
             if not args.config:
@@ -57,7 +58,11 @@ class Environment(Singleton):
             if args.debug:
                 config['GENERAL']['debug'] = 'True'
             self.daemon = args.daemon
-            self.command = args.command
+            for (arg, _) in required_args:
+                val = args.__getattribute__(arg)
+                if not val:
+                    raise Exception('Use --help for args')
+                self.__setattr__(arg, val)
 
         if 'LOGIN' in config:
             cl = config['LOGIN']
@@ -80,4 +85,3 @@ class Environment(Singleton):
 
         Informer.initEnv(self, redefine_tornado_logging=redefine_tornado_logging)
 
-        Informer.info('{0} started at {1}:{2}'.format(self.name, self.host, self.port))

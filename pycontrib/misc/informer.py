@@ -120,25 +120,16 @@ class Informer(object):
 
     @classmethod
     def error(cls, msg):
-        if not Informer.log.isEnabledFor(logging.ERROR):
-            return
-        for raw in msg.split('\n'):
-            Informer.log.error(raw)
+        Informer.log.error(msg)
         Mailer.send(msg)
 
     @classmethod
     def warning(cls, msg):
-        if not Informer.log.isEnabledFor(logging.WARNING):
-            return
-        for raw in msg.split('\n'):
-            Informer.log.warning(raw)
+        Informer.log.warning(msg)
 
     @classmethod
     def info(cls, msg):
-        if not Informer.log.isEnabledFor(logging.INFO):
-            return
-        for raw in msg.split('\n'):
-            Informer.log.info(raw)
+        Informer.log.info(msg)
 
     @classmethod
     def mail(cls, msg):
