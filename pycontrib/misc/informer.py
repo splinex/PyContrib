@@ -76,6 +76,8 @@ class MultilineFormatter(logging.Formatter):
 
         for msg_raw in msg_raws.split('\n'):
             record.msg = msg_raw
+            if ret:
+                ret += '\n'
             ret += super().format(record)
 
         if exc_text:
