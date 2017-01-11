@@ -11,7 +11,7 @@ import sys
 
 logger = logging.getLogger('watchdog')
 handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+handler.setFormatter(logging.Formatter('[Watchdog] %(levelname)s: %(message)s'))
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
@@ -30,9 +30,16 @@ class SubprocessWatchdog:
         except:
             logger.error('Can not run {}'.format(self.executor_script))
 
+    @asyncio.coroutine
     def stop(self):
         if self.process_is_alive():
-            self.process.kill()
+            try:
+                self.process.terminate()
+                yield from self.process.wait()
+            except ProcessLookupError:
+                self.process = None
+            else:
+                logger.info('Stopped')
 
     def get_state_file_mtime(self):
         try:
@@ -45,8 +52,11 @@ class SubprocessWatchdog:
         return self.process is not None and self.process.pid is not None
 
     async def watch(self):
+        logger.info('Going to start {}'.format(self.executor_script))
+        await self.run()
+        await asyncio.sleep(40)
         while True:
-            await asyncio.sleep(10)
+            await asyncio.sleep(20)
             if self.process_is_alive():
                 mtime = self.get_state_file_mtime()
                 if mtime == self.state_file_mtime:
@@ -58,9 +68,10 @@ class SubprocessWatchdog:
                 logger.info('No alive process')
 
             logger.info('Going to restart {}'.format(self.executor_script))
-            self.stop()
-            await asyncio.sleep(1)
+            await self.stop()
+            await asyncio.sleep(10)
             await self.run()
+            await asyncio.sleep(40)
 
 def main():
 
