@@ -22,13 +22,15 @@ class Environment(Singleton):
         argparser.add_argument("--port", help="binding port")
         argparser.add_argument("--debug", help="debug mode")
         argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
+        argparser.add_argument("--log", help="log output")
         for (arg, help) in additional_args:
             argparser.add_argument("--%s" % arg, help=help)
         return argparser
 
-    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False, required_args=[]):
+    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False, required_args=None):
 
         self.args = None
+        required_args = required_args or []
 
         if not (config_file or config_data):
             argparser = self.get_argparser(required_args)
@@ -57,6 +59,8 @@ class Environment(Singleton):
                 config['NETWORK']['port'] = args.port
             if args.debug:
                 config['GENERAL']['debug'] = 'True'
+            if args.log:
+                config['GENERAL']['log'] = args.log
             self.daemon = args.daemon
             for (arg, _) in required_args:
                 val = args.__getattribute__(arg)
