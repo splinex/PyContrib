@@ -16,7 +16,8 @@ class Environment(Singleton):
     Environment configuration
     '''
 
-    def get_argparser(self, additional_args):
+    def get_argparser(self, additional_args=None):
+        if additional_args is None: additional_args = []
         argparser = argparse.ArgumentParser()
         argparser.add_argument("--config", help="configuration file - required")
         argparser.add_argument("--port", help="binding port")
