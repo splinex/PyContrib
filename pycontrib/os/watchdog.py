@@ -8,6 +8,7 @@ import asyncio
 import logging
 from os.path import getmtime
 import sys
+from time import time
 
 logger = logging.getLogger('watchdog')
 handler = logging.StreamHandler()
@@ -21,13 +22,18 @@ class SubprocessWatchdog:
         self.executor_script = executor_script
         self.state_file = state_file
         self.process = None
-        self.state_file_mtime = None
+        self.run_time = 0
+        self.timeout = 2
+        self.status_timeout = 30
 
     @asyncio.coroutine
     def run(self):
         try:
             self.process = yield from asyncio.create_subprocess_exec(self.executor_script)
+            self.run_time = time()
         except:
+            self.process = None
+            self.run_time = 0
             logger.error('Can not run {}'.format(self.executor_script))
 
     @asyncio.coroutine
@@ -54,24 +60,20 @@ class SubprocessWatchdog:
     async def watch(self):
         logger.info('Going to start {}'.format(self.executor_script))
         await self.run()
-        await asyncio.sleep(40)
         while True:
-            await asyncio.sleep(20)
+            await asyncio.sleep(self.timeout)
             if self.process_is_alive():
-                mtime = self.get_state_file_mtime()
-                if mtime == self.state_file_mtime:
-                    logger.info('Status file {} was not changed'.format(self.state_file))
+                if time() - max(self.get_state_file_mtime(), self.run_time) > self.status_timeout:
+                    logger.info('Status file {} was not changed in 30 sec'.format(self.state_file))
                 else:
-                    self.state_file_mtime = mtime
                     continue
             else:
                 logger.info('No alive process')
 
             logger.info('Going to restart {}'.format(self.executor_script))
             await self.stop()
-            await asyncio.sleep(10)
+            await asyncio.sleep(self.timeout)
             await self.run()
-            await asyncio.sleep(40)
 
 def main():
 
@@ -84,7 +86,7 @@ def main():
         loop = asyncio.get_event_loop()
 
     if len(sys.argv) < 3:
-        logger.info('Usage: me.py script_to_execute state_file')
+        logger.info('Usage: watchdog.py script_to_execute state_file')
         return
 
     executor_script, state_file = sys.argv[1:3]
