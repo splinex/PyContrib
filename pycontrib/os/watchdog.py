@@ -64,7 +64,7 @@ class SubprocessWatchdog:
             await asyncio.sleep(self.timeout)
             if self.process_is_alive():
                 if time() - max(self.get_state_file_mtime(), self.run_time) > self.status_timeout:
-                    logger.info('Status file {} was not changed in 30 sec'.format(self.state_file))
+                    logger.info('Status file {} was not changed in {} sec'.format(self.state_file, self.status_timeout))
                 else:
                     continue
             else:
