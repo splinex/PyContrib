@@ -19,7 +19,7 @@ class Environment(Singleton):
     def get_argparser(self, additional_args=None):
         if additional_args is None: additional_args = []
         argparser = argparse.ArgumentParser()
-        argparser.add_argument("--config", help="configuration file - required")
+        argparser.add_argument("--config", help="configuration file")
         argparser.add_argument("--port", help="binding port")
         argparser.add_argument("--debug", help="debug mode")
         argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
@@ -33,16 +33,16 @@ class Environment(Singleton):
         self.args = None
         required_args = required_args or []
 
-        if not (config_file or config_data):
-            argparser = self.get_argparser(required_args)
-            args = argparser.parse_args()
 
-            if not args.config:
+        argparser = self.get_argparser(required_args)
+        args = argparser.parse_args()
+
+        if not args.config:
+            if not (config_file or config_data):
                 raise Exception('Use --help for args')
-
-            config_file = args.config
         else:
-            args = None
+            config_file = args.config
+
         self.configFn = config_file
 
         self.args = args
