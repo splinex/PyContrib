@@ -4,9 +4,10 @@ Created on Jun 18, 2015
 @author: maxim
 '''
 import argparse
-import configparser
+import json
 import logging
 
+import configparser
 from pycontrib.misc.informer import Informer
 from pycontrib.misc.patterns import Singleton
 
@@ -22,19 +23,18 @@ class Environment(Singleton):
         argparser.add_argument("--config", help="configuration file")
         argparser.add_argument("--port", help="binding port")
         argparser.add_argument("--debug", help="debug mode")
-        argparser.add_argument("--daemon", help="daemon command {start|stop|restart}")
         argparser.add_argument("--log", help="log output")
         for (arg, help) in additional_args:
             argparser.add_argument("--%s" % arg, help=help)
         return argparser
 
-    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False, required_args=None):
+    def initialize(self, config_file=None, config_data=None, redefine_tornado_logging=False, required_args=None, optional_args=None):
 
         self.args = None
         required_args = required_args or []
+        optional_args = optional_args or []
 
-
-        argparser = self.get_argparser(required_args)
+        argparser = self.get_argparser(list(required_args) + list(optional_args))
         args = argparser.parse_args()
 
         if not args.config:
@@ -62,14 +62,23 @@ class Environment(Singleton):
                 config['GENERAL']['debug'] = 'True'
             if args.log:
                 config['GENERAL']['log'] = args.log
-            self.daemon = args.daemon
             for (arg, _) in required_args:
                 val = args.__getattribute__(arg)
                 if not val:
                     raise Exception('Use --help for args')
                 self.__setattr__(arg, val)
 
-        if 'LOGIN' in config:
+            for (arg, _) in optional_args:
+                val = args.__getattribute__(arg)
+                if val:
+                    self.__setattr__(arg, val)
+
+        if 'USERS' in config:
+            cl = config['USERS']
+            admins = json.loads(cl['admins'])
+            users = json.loads(cl['users'])
+            login = dict(admins=admins, users=users)
+        elif 'LOGIN' in config:
             cl = config['LOGIN']
             login = {'admins': {cl['adminlogin']: cl['adminpass']}, 'users': {cl['userlogin']: cl['userpass']}}
         else:

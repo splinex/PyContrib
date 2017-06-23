@@ -1,8 +1,10 @@
+from tornado.web import RequestHandler
 
-import time
-import tornado.web
+class LoginRequestHandler(RequestHandler):
 
-class LoginRequestHandler(tornado.web.RequestHandler):
+    def initialize(self, admins_only=False):
+        super().initialize()
+        self.admins_only = admins_only
 
     def get_current_user(self):
         user = self.get_secure_cookie('user')
@@ -11,11 +13,13 @@ class LoginRequestHandler(tornado.web.RequestHandler):
             user = user.decode()
             password = password.decode()
         cls = type(self)
-        for group in ('admins', 'users'):
+        for group in ('admins',) if self.admins_only else ('admins', 'users'):
             if (user in self.settings.get(group, {}) and self.settings[group][user] == password):
                 return user
-        time.sleep(3)
         return None
+
+    def get_users(self):
+        return self.settings.get('users', {}).keys()
 
     def current_user_is_superuser(self):
         return (self.current_user in self.settings.get('admins', {}))
